@@ -6,5 +6,9 @@ data class ProductLight(
         var productId:String,
         var productName:String,
         var productImage:String,
-        var productPrice:Int,
-) : Serializable
+        var productPrice:Number,
+) : Serializable {
+    companion object{
+        val PRODUCT_KEY = "PRODUCT_KEY"
+    }
+}

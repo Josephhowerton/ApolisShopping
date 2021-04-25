@@ -16,7 +16,7 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
 
     companion object {
         const val DB_NAME = "APOLIS_SHOPPING"
-        const val VERSION = 3
+        const val VERSION = 4
 
         const val CATEGORY_TABLE_NAME = "category"
         const val SUBCATEGORY_TABLE_NAME = "subcategory"
@@ -57,8 +57,8 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
 
         val productTable = "create table $PRODUCT_TABLE_NAME ($QUANTITY integer, $DESCRIPTION varchar(300)," +
                 "$CREATED varchar(50), $ID varchar(50), $CAT_ID integer, $SUB_ID integer," +
-                "$PRODUCT_NAME varchar(50), $IMAGE varchar(50), $UNIT varchar(5), $PRICE integer," +
-                "$MRP integer,$POSITION integer, $STATUS boolean, PRIMARY KEY ($ID))"
+                "$PRODUCT_NAME varchar(50), $IMAGE varchar(50), $UNIT varchar(5), $PRICE real," +
+                "$MRP real,$POSITION integer, $STATUS boolean, PRIMARY KEY ($ID))"
 
         db?.execSQL(categoryTable)
         db?.execSQL(subcategoryTable)
@@ -67,26 +67,41 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {}
 
-    fun isCategoryTableEmpty() : Boolean {
+    fun isCategoryTableFresh() : Boolean {
         val cursor = readableDatabase.query(CATEGORY_TABLE_NAME, null, null, null, null, null, null)
-        cursor.close()
-        return cursor != null && cursor.moveToFirst()
+        if(cursor != null && cursor.moveToFirst()){
+            cursor.close()
+            return true
+        }else{
+            cursor.close()
+            return false
+        }
     }
 
-    fun isSubcategoryTableEmpty(id: Int) : Boolean {
+    fun isSubcategoryTableFresh(id: Int) : Boolean {
         val selection = "$CAT_ID = ?"
         val selectionArgs = arrayOf(id.toString())
         val cursor = readableDatabase.query(SUBCATEGORY_TABLE_NAME, null, selection, selectionArgs, null, null, null)
-        cursor.close()
-        return cursor != null && cursor.moveToFirst()
+        if(cursor != null && cursor.moveToFirst()){
+            cursor.close()
+            return true
+        }else{
+            cursor.close()
+            return false
+        }
     }
 
-    fun isProductTableEmpty(id: Int) : Boolean{
+    fun isProductTableFresh(id: Int) : Boolean{
         val selection = "$SUB_ID = ?"
         val selectionArgs = arrayOf(id.toString())
         val cursor = readableDatabase.query(PRODUCT_TABLE_NAME, null, selection, selectionArgs, null, null, null)
-        cursor.close()
-        return cursor != null && cursor.moveToFirst()
+        if(cursor != null && cursor.moveToFirst()){
+            cursor.close()
+            return true
+        }else{
+            cursor.close()
+            return false
+        }
     }
 
     fun addCategory(category: Category){
@@ -128,8 +143,8 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
         contentValues.put(PRODUCT_NAME, product.productName)
         contentValues.put(IMAGE, product.image)
         contentValues.put(UNIT, product.unit)
-        contentValues.put(PRICE, product.price)
-        contentValues.put(MRP, product.mrp)
+        contentValues.put(PRICE, product.price.toFloat())
+        contentValues.put(MRP, product.mrp.toFloat())
         contentValues.put(POSITION, product.position)
         contentValues.put(STATUS, product.status)
         writableDatabase.insert(PRODUCT_TABLE_NAME, null, contentValues)
@@ -139,7 +154,6 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
         val categories = ArrayList<CategoryLight>()
         val columns = arrayOf(ID, CAT_ID, CAT_NAME, CAT_IMAGE)
         val cursor = readableDatabase.query(CATEGORY_TABLE_NAME, columns, null, null, null, null, null)
-
         if(cursor != null && cursor.moveToFirst()){
             do {
                 val id = cursor.getString(cursor.getColumnIndex(ID))
@@ -156,11 +170,10 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
 
     fun getAllSubcategoryByCatId(catId: Int) : ArrayList<SubcategoryLight> {
         val subcategories = ArrayList<SubcategoryLight>()
-        val selection = "$ID = ?"
+        val selection = "$CAT_ID = ?"
         val selectionArgs = arrayOf(catId.toString())
         val columns = arrayOf(ID, SUB_ID, SUB_NAME, SUB_IMAGE)
-        val cursor = readableDatabase.query(CATEGORY_TABLE_NAME, columns, selection, selectionArgs, null, null, null)
-
+        val cursor = readableDatabase.query(SUBCATEGORY_TABLE_NAME, columns, selection, selectionArgs, null, null, null)
         if(cursor != null && cursor.moveToFirst()){
             do {
                 val id = cursor.getString(cursor.getColumnIndex(ID))
@@ -179,7 +192,7 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
         val selection = "$ID = ?"
         val selectionArgs = arrayOf(id)
         val columns = arrayOf(ID, PRODUCT_NAME, IMAGE, PRICE, DESCRIPTION, QUANTITY)
-        val cursor = readableDatabase.query(CATEGORY_TABLE_NAME, columns, selection, selectionArgs, null, null, null)
+        val cursor = readableDatabase.query(PRODUCT_TABLE_NAME, columns, selection, selectionArgs, null, null, null)
         lateinit var productDetails: ProductDetails
         if(cursor != null && cursor.moveToFirst()){
             do {
@@ -190,12 +203,8 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
                 val productPrice = cursor.getInt(cursor.getColumnIndex(PRICE))
                 val productQuantity = cursor.getInt(cursor.getColumnIndex(QUANTITY))
 
-                productDetails.productId = productId
-                productDetails.productName = productName
-                productDetails.productImage = productImage
-                productDetails.productDescription = productDescription
-                productDetails.productPrice = productPrice
-                productDetails.productQuantity = productQuantity
+                productDetails = ProductDetails(productId, productName, productImage,
+                        productDescription, productPrice, productQuantity)
 
             }while (cursor.moveToNext())
 
@@ -206,10 +215,10 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
 
     fun getAllProductBySubId(subId: Int) : ArrayList<ProductLight> {
         val products = ArrayList<ProductLight>()
-        val selection = "$ID = ?"
+        val selection = "$SUB_ID = ?"
         val selectionArgs = arrayOf(subId.toString())
         val columns = arrayOf(ID, PRODUCT_NAME, IMAGE, PRICE)
-        val cursor = readableDatabase.query(CATEGORY_TABLE_NAME, columns, selection, selectionArgs, null, null, null)
+        val cursor = readableDatabase.query(PRODUCT_TABLE_NAME, columns, selection, selectionArgs, null, null, null)
 
         if(cursor != null && cursor.moveToFirst()){
             do {
@@ -238,8 +247,8 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
         contentValues.put(PRODUCT_NAME, product.productName)
         contentValues.put(IMAGE, product.image)
         contentValues.put(UNIT, product.unit)
-        contentValues.put(PRICE, product.price)
-        contentValues.put(MRP, product.mrp)
+        contentValues.put(PRICE, product.price.toFloat())
+        contentValues.put(MRP, product.mrp.toFloat())
         contentValues.put(POSITION, product.position)
         contentValues.put(STATUS, product.status)
         val whereClause = "$ID = ?"

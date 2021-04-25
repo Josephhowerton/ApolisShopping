@@ -1,44 +1,50 @@
 package com.josephhowerton.apolisshopping.view.fragment
 
+import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.josephhowerton.apolisshopping.R
 import com.josephhowerton.apolisshopping.adapter.ProductsAdapter
+import com.josephhowerton.apolisshopping.app.Config
 import com.josephhowerton.apolisshopping.databinding.FragmentProductBinding
-import com.josephhowerton.apolisshopping.model.product.Product
 import com.josephhowerton.apolisshopping.model.product.ProductLight
 import com.josephhowerton.apolisshopping.model.subcategory.SubCategory
 import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
-import com.josephhowerton.apolisshopping.viewmodel.MainViewModel
+import com.josephhowerton.apolisshopping.app.Config.Companion.BTN
+import com.josephhowerton.apolisshopping.app.Config.Companion.MESSAGE
+import com.josephhowerton.apolisshopping.app.Config.Companion.TITLE
+import com.josephhowerton.apolisshopping.viewmodel.ProductViewModel
 
 class ProductFragment : Fragment(), ProductsAdapter.ProductClickListener {
+    private val TAG = "ProductFragment"
     private val mList: ArrayList<ProductLight> = ArrayList()
     private lateinit var binding:FragmentProductBinding
-    private lateinit var mViewModel:MainViewModel
+    private lateinit var mViewModel:ProductViewModel
     private lateinit var mAdapter:ProductsAdapter
-    private lateinit var subCategory: SubCategory
+    private var subCategoryId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+        mViewModel = ViewModelProvider(this).get(ProductViewModel::class.java)
         mAdapter = ProductsAdapter(mList, this)
 
         arguments?.let {
-            subCategory = it.getSerializable(SubCategory.SUB_CATEGORY_KEY) as SubCategory
+            subCategoryId = it.getInt(SubCategory.SUB_CATEGORY_KEY)
+            Log.println(Log.ASSERT, TAG, "Subcategory id " + subCategoryId)
         }
-
-        mViewModel.fetchProducts(subCategory.subId)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_product, container, false)
 
         init()
@@ -49,27 +55,42 @@ class ProductFragment : Fragment(), ProductsAdapter.ProductClickListener {
     private fun init() {
         binding.recycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.recycler.adapter = mAdapter
-        initProducts()
+        mViewModel.fetchProducts(subCategoryId).observe(viewLifecycleOwner, {
+            if(it){
+                initProducts()
+            }else{
+                alertUser()
+            }
+        })
     }
 
     private fun initProducts(){
             mList.clear()
-            mList.addAll(mViewModel.getAllProductBySubId(subCategory.subId))
+            mList.addAll(mViewModel.getAllProductBySubId(subCategoryId))
             mAdapter.notifyDataSetChanged()
     }
 
     override fun onProductClick(product: ProductLight) {
-        mViewModel.fetchItemDetails(product.productId)
-        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.navigation_details)
+        mViewModel.fetchProductsDetails(product.productId).observe(viewLifecycleOwner, {
+            if(it){
+                Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+                        .navigate(R.id.navigation_details, bundleOf(ProductLight.PRODUCT_KEY to product.productId))
+            }else{
+                alertUser()
+            }
+        })
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(subCategory: SubcategoryLight) =
-            ProductFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(SubcategoryLight.SUB_CATEGORY_KEY, subCategory)
-                }
-            }
+    private fun alertUser() {
+        AlertDialog.Builder(requireContext())
+                .setCancelable(false)
+                .setTitle(TITLE)
+                .setMessage(MESSAGE)
+                .setPositiveButton(
+                        BTN,
+                ) { dialogInterface: DialogInterface, i: Int ->
+                    dialogInterface.dismiss()
+                    requireActivity().finish()
+                }.show()
     }
 }

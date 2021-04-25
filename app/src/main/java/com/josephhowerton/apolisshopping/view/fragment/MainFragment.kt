@@ -1,10 +1,12 @@
 package com.josephhowerton.apolisshopping.view.fragment
 
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +24,7 @@ import com.josephhowerton.apolisshopping.viewmodel.MainViewModel
 import kotlin.collections.ArrayList
 
 class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
+
     private lateinit var mBinding:FragmentMainBinding
     private lateinit var mViewModel:MainViewModel
     private val mList: ArrayList<CategoryLight> = ArrayList()
@@ -29,7 +32,7 @@ class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+        mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -66,8 +69,26 @@ class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
 
 
     override fun onCategoryClick(category: CategoryLight) {
-        mViewModel.fetchSubCategory(category.categoryId)
-        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
-            .navigate(R.id.navigation_sub_category, bundleOf(CategoryLight.CATEGORY_ID to category.categoryId))
+        mViewModel.fetchSubCategory(category.categoryId).observe(viewLifecycleOwner, {
+            if(it){
+                Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+                        .navigate(R.id.navigation_sub_category, bundleOf(CategoryLight.CATEGORY_ID to category.categoryId))
+            }else{
+                alertUser()
+            }
+        })
+    }
+
+    private fun alertUser() {
+        AlertDialog.Builder(requireContext())
+                .setCancelable(false)
+                .setTitle(Config.TITLE)
+                .setMessage(Config.MESSAGE)
+                .setPositiveButton(
+                        Config.BTN,
+                ) { dialogInterface: DialogInterface, i: Int ->
+                    dialogInterface.dismiss()
+                    requireActivity().onBackPressed()
+                }.show()
     }
 }

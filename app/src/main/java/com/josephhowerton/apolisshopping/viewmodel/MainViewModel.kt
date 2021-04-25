@@ -15,32 +15,11 @@ class MainViewModel(application:Application): AndroidViewModel (application){
 
     private val repository:Repository = Repository(application)
 
-    fun fetchSubCategory(id:Int){
-        repository.fetchSubCategory(id)
-    }
-
-    fun fetchProducts(id: Int){
-        repository.fetchProducts(id)
-    }
-
-    fun fetchItemDetails(id:String){
-        repository.fetchItemDetails(id)
+    fun fetchSubCategory(id:Int)  : LiveData<Boolean>{
+        return repository.fetchSubCategory(id)
     }
 
     fun getAllCategory() : ArrayList<CategoryLight> {
         return repository.getAllCategory()
     }
-
-    fun getAllSubcategoryByCatId(id:Int) : ArrayList<SubcategoryLight> {
-        return repository.getAllSubcategoryByCatId(id)
-    }
-
-    fun getProductById(id: String) : ProductDetails {
-        return repository.getProductById(id)
-    }
-
-    fun getAllProductBySubId(id:Int) : ArrayList<ProductLight> {
-        return repository.getAllProductBySubId(id)
-    }
-
 }

@@ -13,20 +13,20 @@ import com.bumptech.glide.Glide
 import com.josephhowerton.apolisshopping.R
 import com.josephhowerton.apolisshopping.app.Config
 import com.josephhowerton.apolisshopping.databinding.FragmentDetailsBinding
-import com.josephhowerton.apolisshopping.databinding.FragmentProductBinding
-import com.josephhowerton.apolisshopping.viewmodel.MainViewModel
+import com.josephhowerton.apolisshopping.model.product.ProductLight
+import com.josephhowerton.apolisshopping.viewmodel.DetailsViewModel
 
 class DetailsFragment : Fragment() {
     private lateinit var mBinding: FragmentDetailsBinding
-    private lateinit var mViewModel: MainViewModel
-
+    private lateinit var mViewModel: DetailsViewModel
+    private var productId = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+        mViewModel = ViewModelProvider(this).get(DetailsViewModel::class.java)
+        productId = arguments?.getString(ProductLight.PRODUCT_KEY)!!
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_details, container, false)
 
         init()
@@ -37,19 +37,18 @@ class DetailsFragment : Fragment() {
 
 
     private fun init(){
-//        mViewModel.item.observe(viewLifecycleOwner, {
-//            mBinding.name.text = it.productName
-//            mBinding.price.text = it.price.toString()
-//            mBinding.description.text = it.description
-//
-//            Glide.with(mBinding.root)
-//                .load(Config.getImageUrlWithCategoryId(it.image))
-//                .centerCrop()
-//                .placeholder(R.drawable.ic_image_place_holder)
-//                .error(R.drawable.ic_broken_image)
-//                .fallback(R.drawable.ic_no_image)
-//                .into(mBinding.image)
-//        })
+        val productLight = mViewModel.getProductDetails(productId)
+        mBinding.name.text = productLight.productName
+        mBinding.price.text = productLight.productPrice.toString()
+        mBinding.description.text = productLight.productDescription
+
+        Glide.with(mBinding.root)
+            .load(Config.getImageUrlWithCategoryId(productLight.productImage))
+            .centerCrop()
+            .placeholder(R.drawable.ic_image_place_holder)
+            .error(R.drawable.ic_broken_image)
+            .fallback(R.drawable.ic_no_image)
+            .into(mBinding.image)
     }
 
     private fun initToolbar(){

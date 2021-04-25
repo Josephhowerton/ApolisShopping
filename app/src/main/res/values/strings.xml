@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">ApolisShopping</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="app_name">Apolis E-Market</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_placeholder">Replace With Name</string>
     <string name="description_category_image">Category Image</string>

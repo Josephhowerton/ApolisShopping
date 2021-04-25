@@ -1,7 +1,6 @@
 package com.josephhowerton.apolisshopping
 
 import android.app.Application
-import android.content.ContentValues
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.volley.Request
@@ -19,9 +18,6 @@ import com.josephhowerton.apolisshopping.model.product.*
 import com.josephhowerton.apolisshopping.model.subcategory.SubCategory
 import com.josephhowerton.apolisshopping.model.subcategory.SubCategoryResponse
 import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
 
 class Repository constructor(application: Application){
 
@@ -31,23 +27,104 @@ class Repository constructor(application: Application){
     private val db: DBHelper = DBHelper(application)
 
     fun init() : LiveData<Boolean> {
-        if(isCategoryTableEmpty()){
-            return fetchCategory()
-        }else{
-            return MutableLiveData(false)
-        }
+        return fetchCategory()
     }
 
-    fun fetchCategory() : LiveData<Boolean> {
+    public fun isCurrentUser() : Boolean{
+        TODO("return if any user is signed in")
+    }
+
+    public fun authenticate(username:String, password:String){
+        
+    }
+
+    private fun fetchCategory() : LiveData<Boolean> {
+        val mutableLiveData:MutableLiveData<Boolean> = MutableLiveData()
+        if(isCategoryTableFresh()){
+            mutableLiveData.value = true
+        }else{
+            val request = StringRequest(
+                    Request.Method.GET,
+                    Config.getBaseUrlWithEndpoint(Endpoint.CATEGORY),
+                    {
+                        val response = gson.fromJson(it, CategoryResponse::class.java)
+                        for(category in response.data){
+                            addCategory(category)
+                        }
+                        mutableLiveData.value = true
+                    },
+                    {
+                        it.printStackTrace()
+                        mutableLiveData.value = false
+                    }
+            )
+            requestQueue.add(request)
+        }
+
+        return mutableLiveData
+    }
+
+    fun fetchSubCategory(id: Int) : LiveData<Boolean> {
+        val mutableLiveData:MutableLiveData<Boolean> = MutableLiveData()
+        if(isSubcategoryTableFresh(id)){
+            mutableLiveData.value = true
+        }
+        else{
+            val request = StringRequest(
+                    Request.Method.GET,
+                    Config.getBaseUrlWithEndpoint(Endpoint.SUB_CATEGORY, id),
+                    {
+                        val response = gson.fromJson(it, SubCategoryResponse::class.java)
+                        for(category in response.data){
+                            addSubcategory(category)
+                            fetchProducts(category.subId)
+                        }
+                        mutableLiveData.value = true
+                    },
+                    {
+                        it.printStackTrace()
+                        mutableLiveData.value = false
+                    }
+            )
+            requestQueue.add(request)
+        }
+        return mutableLiveData
+    }
+
+    fun fetchProducts(id: Int) : LiveData<Boolean> {
+        val mutableLiveData:MutableLiveData<Boolean> = MutableLiveData()
+        if(isProductTableFresh(id)){
+            mutableLiveData.value = true
+        }
+        else{
+            val request = StringRequest(
+                    Request.Method.GET,
+                    Config.getBaseUrlWithProductEndpoint(Endpoint.PRODUCTS, id),
+                    {
+                        val response = gson.fromJson(it, ProductResponse::class.java)
+                        for(category in response.data){
+                            addProduct(category)
+                        }
+                        mutableLiveData.value = true
+                    },
+                    {
+                        it.printStackTrace()
+                        mutableLiveData.value = false
+                    }
+            )
+            requestQueue.add(request)
+        }
+        return mutableLiveData
+    }
+
+    fun fetchProductsDetails(id: String) : LiveData<Boolean> {
         val mutableLiveData:MutableLiveData<Boolean> = MutableLiveData()
         val request = StringRequest(
             Request.Method.GET,
-            Config.getBaseUrlWithEndpoint(Endpoint.CATEGORY),
+            Config.getBaseUrlWithProductDetailsEndpoint(Endpoint.PRODUCTS, id),
             {
-                val response = gson.fromJson(it, CategoryResponse::class.java)
-                for(category in response.data){
-                    addCategory(category)
-                }
+                val response = gson.fromJson(it, ItemResponse::class.java)
+                updateProduct(response.data)
                 mutableLiveData.value = true
             },
             {
@@ -56,69 +133,19 @@ class Repository constructor(application: Application){
             }
         )
         requestQueue.add(request)
-
         return mutableLiveData
     }
 
-    fun fetchSubCategory(id: Int){
-        val request = StringRequest(
-            Request.Method.GET,
-            Config.getBaseUrlWithEndpoint(Endpoint.SUB_CATEGORY, id),
-            {
-                val response = gson.fromJson(it, SubCategoryResponse::class.java)
-                for(category in response.data){
-                    addSubcategory(category)
-                }
-            },
-            {
-                it.printStackTrace()
-            }
-        )
-        requestQueue.add(request)
+    private fun isCategoryTableFresh() : Boolean {
+        return db.isCategoryTableFresh()
     }
 
-    fun fetchProducts(id: Int){
-        val request = StringRequest(
-            Request.Method.GET,
-            Config.getBaseUrlWithProductEndpoint(Endpoint.PRODUCTS, id),
-            {
-                val response = gson.fromJson(it, ProductResponse::class.java)
-                for(category in response.data){
-                    addProduct(category)
-                }
-            },
-            {
-                it.printStackTrace()
-            }
-        )
-        requestQueue.add(request)
+    private fun isSubcategoryTableFresh(catId: Int) : Boolean {
+        return db.isSubcategoryTableFresh(catId)
     }
 
-    fun fetchItemDetails(id: String){
-        val request = StringRequest(
-            Request.Method.GET,
-            Config.getBaseUrlWithProductDetailsEndpoint(Endpoint.PRODUCTS, id),
-            {
-                val response = gson.fromJson(it, ItemResponse::class.java)
-                updateProduct(response.data)
-            },
-            {
-                it.printStackTrace()
-            }
-        )
-        requestQueue.add(request)
-    }
-
-    public fun isCategoryTableEmpty() : Boolean {
-        return db.isCategoryTableEmpty()
-    }
-
-    public fun isSubcategoryTableEmpty(catId: Int) : Boolean {
-        return db.isSubcategoryTableEmpty(catId)
-    }
-
-    public fun isProductTableEmpty(subId: Int) : Boolean{
-        return db.isProductTableEmpty(subId)
+    private fun isProductTableFresh(subId: Int) : Boolean{
+        return db.isProductTableFresh(subId)
     }
 
     private fun addCategory(category: Category){

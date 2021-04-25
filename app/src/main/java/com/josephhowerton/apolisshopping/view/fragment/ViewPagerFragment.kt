@@ -1,6 +1,8 @@
 package com.josephhowerton.apolisshopping.view.fragment
 
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -9,19 +11,17 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.josephhowerton.apolisshopping.R
 import com.josephhowerton.apolisshopping.adapter.PagerAdapter
 import com.josephhowerton.apolisshopping.databinding.ViewPagerBinding
 import com.josephhowerton.apolisshopping.model.category.CategoryLight
-import com.josephhowerton.apolisshopping.model.subcategory.SubCategory
 import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
-import com.josephhowerton.apolisshopping.viewmodel.MainViewModel
 import com.josephhowerton.apolisshopping.viewmodel.ViewPagerViewModel
-import kotlin.properties.Delegates
 
 class ViewPagerFragment : Fragment() {
     private val mList:ArrayList<SubcategoryLight> = ArrayList()
-
     private lateinit var mBinding:ViewPagerBinding
     private lateinit var mViewModel:ViewPagerViewModel
     private lateinit var pagerAdapter: PagerAdapter
@@ -29,10 +29,11 @@ class ViewPagerFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity()).get(ViewPagerViewModel::class.java)
-        pagerAdapter = PagerAdapter(requireActivity().supportFragmentManager, mList)
+        mViewModel = ViewModelProvider(this).get(ViewPagerViewModel::class.java)
+        pagerAdapter = PagerAdapter(this, mList)
 
         catId = arguments?.getInt(CategoryLight.CATEGORY_ID)!!
+        Log.println(Log.ASSERT, TAG, "category id " + catId)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View{
@@ -43,17 +44,23 @@ class ViewPagerFragment : Fragment() {
         return mBinding.root
     }
 
+    private val TAG = "ViewPagerFragment"
+
     private fun init(){
         mBinding.viewPager.adapter = pagerAdapter
-        mBinding.recyclerTabLayout.setUpWithViewPager(mBinding.viewPager)
         initSubcategory()
         initToolbar()
     }
 
     private fun initSubcategory(){
-            mList.clear()
-            mList.addAll(mViewModel.getSubcategoryByCatId(catId))
-            pagerAdapter.notifyDataSetChanged()
+        mList.clear()
+        mList.addAll(mViewModel.getSubcategoryByCatId(catId))
+        Log.println(Log.ASSERT, TAG, "SIIIIIZE " + mList.size)
+        pagerAdapter.notifyDataSetChanged()
+        TabLayoutMediator(mBinding.tabLayout, mBinding.viewPager) { tab: TabLayout.Tab, i: Int ->
+
+            tab.text = mList[i].subcategoryName
+        }.attach()
     }
 
     private fun initToolbar(){

@@ -20,7 +20,7 @@ data class Product (
     val productName: String,
     val image: String,
     val unit: String,
-    val price: Int,
-    val mrp: Int,
+    val price: Number,
+    val mrp: Number,
     val __v:Int
 ) : Serializable

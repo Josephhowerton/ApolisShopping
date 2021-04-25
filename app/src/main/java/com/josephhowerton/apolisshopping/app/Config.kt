@@ -27,5 +27,10 @@ class Config {
         fun getImageUrlWithCategoryId(categoryId:String): String{
             return "http://rjtmobile.com/grocery/images/${categoryId}?"
         }
+
+        val TITLE = "There was an error!"
+        val MESSAGE = "There was an error finding the data from the network. Check your internet connection and try again later."
+        val BTN = "Try Later"
+
     }
 }

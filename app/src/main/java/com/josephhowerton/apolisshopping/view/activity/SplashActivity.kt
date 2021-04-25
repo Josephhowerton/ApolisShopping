@@ -6,12 +6,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import com.josephhowerton.apolisshopping.R
+import com.josephhowerton.apolisshopping.app.Config.Companion.BTN
+import com.josephhowerton.apolisshopping.app.Config.Companion.MESSAGE
+import com.josephhowerton.apolisshopping.app.Config.Companion.TITLE
 import com.josephhowerton.apolisshopping.viewmodel.SplashViewModel
 
 class SplashActivity : AppCompatActivity() {
-    private val TITLE = "There was an error!"
-    private val MESSAGE = "There was an error finding the data from the network. Check your internet connection and try again later."
-    private val BTN = "Try Later"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
