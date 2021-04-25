@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ApolisShopping</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_placeholder">Replace With Name</string>
+    <string name="description_category_image">Category Image</string>
+    <string name="welcome_to_apolis_e_market">Welcome To Apolis E-Market</string>
+    <string name="title_add_to_cart_btn">Add To Cart</string>
+    <string name="description_price">%s is %s USD</string>
+</resources>
