@@ -16,7 +16,7 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
 
     companion object {
         const val DB_NAME = "APOLIS_SHOPPING"
-        const val VERSION = 2
+        const val VERSION = 3
 
         const val CATEGORY_TABLE_NAME = "category"
         const val SUBCATEGORY_TABLE_NAME = "subcategory"
@@ -60,14 +60,33 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
                 "$PRODUCT_NAME varchar(50), $IMAGE varchar(50), $UNIT varchar(5), $PRICE integer," +
                 "$MRP integer,$POSITION integer, $STATUS boolean, PRIMARY KEY ($ID))"
 
-        db.
-
         db?.execSQL(categoryTable)
         db?.execSQL(subcategoryTable)
         db?.execSQL(productTable)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {}
+
+    fun isCategoryTableEmpty() : Boolean {
+        val cursor = readableDatabase.query(CATEGORY_TABLE_NAME, null, null, null, null, null, null)
+        cursor.close()
+        return cursor != null && cursor.moveToFirst()
+    }
+
+    fun isSubcategoryTableEmpty(id: Int) : Boolean {
+        val selection = "$CAT_ID = ?"
+        val selectionArgs = arrayOf(id.toString())
+        val cursor = readableDatabase.query(SUBCATEGORY_TABLE_NAME, null, selection, selectionArgs, null, null, null)
+        cursor.close()
+        return cursor != null && cursor.moveToFirst()
+    }
+
+    fun isProductTableEmpty(id: Int) : Boolean{
+        val selection = "$SUB_ID = ?"
+        val selectionArgs = arrayOf(id.toString())
+        val cursor = readableDatabase.query(PRODUCT_TABLE_NAME, null, selection, selectionArgs, null, null, null)
+        cursor.close()
+        return cursor != null && cursor.moveToFirst()
     }
 
     fun addCategory(category: Category){
@@ -118,7 +137,6 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
 
     fun getAllCategory() : ArrayList<CategoryLight> {
         val categories = ArrayList<CategoryLight>()
-
         val columns = arrayOf(ID, CAT_ID, CAT_NAME, CAT_IMAGE)
         val cursor = readableDatabase.query(CATEGORY_TABLE_NAME, columns, null, null, null, null, null)
 

@@ -12,19 +12,27 @@ import androidx.lifecycle.ViewModelProvider
 import com.josephhowerton.apolisshopping.R
 import com.josephhowerton.apolisshopping.adapter.PagerAdapter
 import com.josephhowerton.apolisshopping.databinding.ViewPagerBinding
+import com.josephhowerton.apolisshopping.model.category.CategoryLight
 import com.josephhowerton.apolisshopping.model.subcategory.SubCategory
 import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
 import com.josephhowerton.apolisshopping.viewmodel.MainViewModel
+import com.josephhowerton.apolisshopping.viewmodel.ViewPagerViewModel
+import kotlin.properties.Delegates
 
 class ViewPagerFragment : Fragment() {
     private val mList:ArrayList<SubcategoryLight> = ArrayList()
+
     private lateinit var mBinding:ViewPagerBinding
-    private lateinit var mViewModel:MainViewModel
+    private lateinit var mViewModel:ViewPagerViewModel
     private lateinit var pagerAdapter: PagerAdapter
+    private var catId:Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+        mViewModel = ViewModelProvider(requireActivity()).get(ViewPagerViewModel::class.java)
         pagerAdapter = PagerAdapter(requireActivity().supportFragmentManager, mList)
+
+        catId = arguments?.getInt(CategoryLight.CATEGORY_ID)!!
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View{
@@ -43,11 +51,9 @@ class ViewPagerFragment : Fragment() {
     }
 
     private fun initSubcategory(){
-//        mViewModel.subCategory.observe(viewLifecycleOwner, {
-//            mList.clear()
-//            mList.addAll(it)
-//            pagerAdapter.notifyDataSetChanged()
-//        })
+            mList.clear()
+            mList.addAll(mViewModel.getSubcategoryByCatId(catId))
+            pagerAdapter.notifyDataSetChanged()
     }
 
     private fun initToolbar(){

@@ -2,6 +2,8 @@ package com.josephhowerton.apolisshopping
 
 import android.app.Application
 import android.content.ContentValues
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
@@ -28,27 +30,34 @@ class Repository constructor(application: Application){
 
     private val db: DBHelper = DBHelper(application)
 
-    fun authenticate(){
-
+    fun init() : LiveData<Boolean> {
+        if(isCategoryTableEmpty()){
+            return fetchCategory()
+        }else{
+            return MutableLiveData(false)
+        }
     }
 
-    fun fetchCategory(){
-        CoroutineScope(IO).launch {
-            val request = StringRequest(
-                Request.Method.GET,
-                Config.getBaseUrlWithEndpoint(Endpoint.CATEGORY),
-                {
-                    val response = gson.fromJson(it, CategoryResponse::class.java)
-                    for(category in response.data){
-                        addCategory(category)
-                    }
-                },
-                {
-                    it.printStackTrace()
+    fun fetchCategory() : LiveData<Boolean> {
+        val mutableLiveData:MutableLiveData<Boolean> = MutableLiveData()
+        val request = StringRequest(
+            Request.Method.GET,
+            Config.getBaseUrlWithEndpoint(Endpoint.CATEGORY),
+            {
+                val response = gson.fromJson(it, CategoryResponse::class.java)
+                for(category in response.data){
+                    addCategory(category)
                 }
-            )
-            requestQueue.add(request)
-        }
+                mutableLiveData.value = true
+            },
+            {
+                it.printStackTrace()
+                mutableLiveData.value = false
+            }
+        )
+        requestQueue.add(request)
+
+        return mutableLiveData
     }
 
     fun fetchSubCategory(id: Int){
@@ -98,6 +107,18 @@ class Repository constructor(application: Application){
             }
         )
         requestQueue.add(request)
+    }
+
+    public fun isCategoryTableEmpty() : Boolean {
+        return db.isCategoryTableEmpty()
+    }
+
+    public fun isSubcategoryTableEmpty(catId: Int) : Boolean {
+        return db.isSubcategoryTableEmpty(catId)
+    }
+
+    public fun isProductTableEmpty(subId: Int) : Boolean{
+        return db.isProductTableEmpty(subId)
     }
 
     private fun addCategory(category: Category){

@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
@@ -16,6 +17,7 @@ import com.josephhowerton.apolisshopping.app.Config
 import com.josephhowerton.apolisshopping.databinding.FragmentMainBinding
 import com.josephhowerton.apolisshopping.model.category.Category
 import com.josephhowerton.apolisshopping.model.category.CategoryLight
+import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
 import com.josephhowerton.apolisshopping.viewmodel.MainViewModel
 import kotlin.collections.ArrayList
 
@@ -28,10 +30,9 @@ class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-        mViewModel.fetchCategory()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         mBinding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_main, container,false)
 
         init()
@@ -66,6 +67,7 @@ class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
 
     override fun onCategoryClick(category: CategoryLight) {
         mViewModel.fetchSubCategory(category.categoryId)
-        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.navigation_sub_category)
+        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+            .navigate(R.id.navigation_sub_category, bundleOf(CategoryLight.CATEGORY_ID to category.categoryId))
     }
 }

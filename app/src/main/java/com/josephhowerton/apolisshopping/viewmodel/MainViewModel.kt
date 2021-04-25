@@ -15,11 +15,6 @@ class MainViewModel(application:Application): AndroidViewModel (application){
 
     private val repository:Repository = Repository(application)
 
-
-    fun fetchCategory(){
-        repository.fetchCategory()
-    }
-
     fun fetchSubCategory(id:Int){
         repository.fetchSubCategory(id)
     }
