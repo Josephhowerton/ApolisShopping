@@ -1,8 +1,6 @@
 package com.josephhowerton.apolisshopping.view.fragment
 
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -33,7 +31,6 @@ class ViewPagerFragment : Fragment() {
         pagerAdapter = PagerAdapter(this, mList)
 
         catId = arguments?.getInt(CategoryLight.CATEGORY_ID)!!
-        Log.println(Log.ASSERT, TAG, "category id " + catId)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View{
@@ -44,8 +41,6 @@ class ViewPagerFragment : Fragment() {
         return mBinding.root
     }
 
-    private val TAG = "ViewPagerFragment"
-
     private fun init(){
         mBinding.viewPager.adapter = pagerAdapter
         initSubcategory()
@@ -55,12 +50,14 @@ class ViewPagerFragment : Fragment() {
     private fun initSubcategory(){
         mList.clear()
         mList.addAll(mViewModel.getSubcategoryByCatId(catId))
-        Log.println(Log.ASSERT, TAG, "SIIIIIZE " + mList.size)
         pagerAdapter.notifyDataSetChanged()
-        TabLayoutMediator(mBinding.tabLayout, mBinding.viewPager) { tab: TabLayout.Tab, i: Int ->
-
-            tab.text = mList[i].subcategoryName
-        }.attach()
+        if(mList.isEmpty()){
+            mBinding.txtViewNoItems.visibility = View.VISIBLE
+        }else{
+            TabLayoutMediator(mBinding.tabLayout, mBinding.viewPager) { tab: TabLayout.Tab, i: Int ->
+                tab.text = mList[i].subcategoryName
+            }.attach()
+        }
     }
 
     private fun initToolbar(){

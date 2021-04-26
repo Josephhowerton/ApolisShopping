@@ -30,12 +30,31 @@ class Repository constructor(application: Application){
         return fetchCategory()
     }
 
-    public fun isCurrentUser() : Boolean{
-        TODO("return if any user is signed in")
+    fun signIn() : LiveData<Boolean> {
+        TODO()
     }
 
-    public fun authenticate(username:String, password:String){
-        
+    fun signUp(name: String, email: String, password: String, phone: String) : LiveData<Boolean> {
+        val mutableLiveData:MutableLiveData<Boolean> = MutableLiveData()
+
+        val request = StringRequest(
+            Request.Method.GET,
+            Config.getBaseUrlWithEndpoint(Endpoint.CATEGORY),
+            {
+                val response = gson.fromJson(it, CategoryResponse::class.java)
+                for(category in response.data){
+                    addCategory(category)
+                }
+                mutableLiveData.value = true
+            },
+            {
+                it.printStackTrace()
+                mutableLiveData.value = false
+            }
+        )
+        requestQueue.add(request)
+
+        return mutableLiveData
     }
 
     private fun fetchCategory() : LiveData<Boolean> {

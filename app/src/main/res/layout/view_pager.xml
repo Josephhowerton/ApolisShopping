@@ -12,6 +12,7 @@
             android:layout_height="wrap_content"
             android:background="@color/white"
             app:elevation="0dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Light"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.appcompat.widget.Toolbar
@@ -21,9 +22,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 android:fitsSystemWindows="true"
+                android:theme="@style/ThemeOverlay.AppCompat.Light"
                 app:popupTheme="@style/Widget.AppCompat.PopupMenu.Overflow" />
 
         </com.google.android.material.appbar.AppBarLayout>
+
+        <TextView
+            android:id="@+id/txt_view_no_items"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_items_present"
+            android:textSize="24sp"
+            android:visibility="gone"
+            app:layout_constraintVertical_bias=".3"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"

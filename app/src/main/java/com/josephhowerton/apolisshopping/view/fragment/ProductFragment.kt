@@ -1,6 +1,7 @@
 package com.josephhowerton.apolisshopping.view.fragment
 
 import android.content.DialogInterface
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -68,6 +69,9 @@ class ProductFragment : Fragment(), ProductsAdapter.ProductClickListener {
             mList.clear()
             mList.addAll(mViewModel.getAllProductBySubId(subCategoryId))
             mAdapter.notifyDataSetChanged()
+        if(mList.isEmpty()){
+            binding.txtViewNoItems.visibility = View.VISIBLE
+        }
     }
 
     override fun onProductClick(product: ProductLight) {

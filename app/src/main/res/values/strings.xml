@@ -6,4 +6,12 @@
     <string name="welcome_to_apolis_e_market">Welcome To Apolis E-Market</string>
     <string name="title_add_to_cart_btn">Add To Cart</string>
     <string name="description_price">%s is %s USD</string>
+    <string name="no_items_present">Uh Oh, We\'re Out</string>
+    <string name="replace_with_logo">Replace With Logo</string>
+    <string name="hint_name">First name</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_mobile">Phone</string>
+    <string name="text_sign_up">No Account? click here to sign up</string>
+    <string name="btn_go">Go!</string>
 </resources>
