@@ -28,6 +28,14 @@ class Config {
             return "http://rjtmobile.com/grocery/images/${categoryId}?"
         }
 
+        fun getSignInUrl(): String {
+            return "http://grocery-second-app.herokuapp.com/api/${Endpoint.URL_REGISTER}?"
+        }
+
+        fun getSignUpUrl(): String {
+            return "http://grocery-second-app.herokuapp.com/api/${Endpoint.URL_REGISTER}?"
+        }
+
         val TITLE = "There was an error!"
         val MESSAGE = "There was an error finding the data from the network. Check your internet connection and try again later."
         val BTN = "Try Later"

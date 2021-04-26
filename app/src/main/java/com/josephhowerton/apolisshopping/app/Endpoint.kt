@@ -11,5 +11,6 @@ class Endpoint {
         const val PASSWORD = "password"
         const val MOBILE = "mobile"
         const val URL_REGISTER = "auth/register"
+        const val URL_SIGN_IN = "auth/signIn"
     }
 }

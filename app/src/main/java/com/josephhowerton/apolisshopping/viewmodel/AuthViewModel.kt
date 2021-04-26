@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.josephhowerton.apolisshopping.Repository
+import com.josephhowerton.apolisshopping.interfaces.NetworkErrorListener
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = Repository(application)
@@ -12,7 +13,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun signUp(name: String, email: String, password: String, phone: String) : LiveData<Boolean> {
-        return repository.signUp(name, email, password, phone)
+    fun signUp(name: String, email: String, password: String, phone: String, listener:NetworkErrorListener) : LiveData<Boolean> {
+        return repository.signUp(name, email, password, phone, listener)
     }
 }

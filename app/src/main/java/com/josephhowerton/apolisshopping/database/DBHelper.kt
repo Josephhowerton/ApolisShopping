@@ -11,16 +11,19 @@ import com.josephhowerton.apolisshopping.model.product.ProductDetails
 import com.josephhowerton.apolisshopping.model.product.ProductLight
 import com.josephhowerton.apolisshopping.model.subcategory.SubCategory
 import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
+import com.josephhowerton.apolisshopping.model.user.User
 
 class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME, null, VERSION){
 
     companion object {
         const val DB_NAME = "APOLIS_SHOPPING"
-        const val VERSION = 4
+        const val VERSION = 5
 
         const val CATEGORY_TABLE_NAME = "category"
         const val SUBCATEGORY_TABLE_NAME = "subcategory"
         const val PRODUCT_TABLE_NAME = "product"
+        const val USER_TABLE_NAME = "user"
+
         const val V = "__v"
         const val ID = "_id"
         const val CAT_DESCRIPTION = "catDescription"
@@ -44,6 +47,12 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
         const val UNIT = "unit"
         const val PRICE = "price"
         const val MRP = "mrp"
+
+        const val FIRST_NAME = "firstName"
+        const val EMAIL = "email"
+        const val PASSWORD = "password"
+        const val MOBILE = "mobile"
+        const val CREATED_AT = "createdAt"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -60,9 +69,14 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
                 "$PRODUCT_NAME varchar(50), $IMAGE varchar(50), $UNIT varchar(5), $PRICE real," +
                 "$MRP real,$POSITION integer, $STATUS boolean, PRIMARY KEY ($ID))"
 
+        val userTable = "create table $USER_TABLE_NAME ($FIRST_NAME varchar(30)," +
+                "$CREATED_AT varchar(50), $ID varchar(50), $EMAIL varchar(30), $PASSWORD varchar(100)," +
+                "$MOBILE varchar(15), $V integer, PRIMARY KEY ($ID))"
+
         db?.execSQL(categoryTable)
         db?.execSQL(subcategoryTable)
         db?.execSQL(productTable)
+        db?.execSQL(userTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {}
@@ -148,6 +162,18 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
         contentValues.put(POSITION, product.position)
         contentValues.put(STATUS, product.status)
         writableDatabase.insert(PRODUCT_TABLE_NAME, null, contentValues)
+    }
+
+    fun addUser(user: User){
+        val contentValues = ContentValues()
+        contentValues.put(FIRST_NAME, user.firstName)
+        contentValues.put(ID, user._id)
+        contentValues.put(EMAIL, user.email)
+        contentValues.put(PASSWORD, user.password)
+        contentValues.put(MOBILE, user.mobile)
+        contentValues.put(CREATED_AT, user.createdAt)
+        contentValues.put(V, user.__v )
+        writableDatabase.insert(USER_TABLE_NAME, null, contentValues)
     }
 
     fun getAllCategory() : ArrayList<CategoryLight> {
@@ -253,6 +279,20 @@ class DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAME
         contentValues.put(STATUS, product.status)
         val whereClause = "$ID = ?"
         val whereArgs = arrayOf(product._id)
+        writableDatabase.update(PRODUCT_TABLE_NAME, contentValues, whereClause, whereArgs)
+    }
+
+    fun updateUser(user: User){
+        val contentValues = ContentValues()
+        contentValues.put(FIRST_NAME, user.firstName)
+        contentValues.put(ID, user._id)
+        contentValues.put(EMAIL, user.email)
+        contentValues.put(PASSWORD, user.password)
+        contentValues.put(MOBILE, user.mobile)
+        contentValues.put(CREATED_AT, user.createdAt)
+        contentValues.put(V, user.__v )
+        val whereClause = "$ID = ?"
+        val whereArgs = arrayOf(user._id)
         writableDatabase.update(PRODUCT_TABLE_NAME, contentValues, whereClause, whereArgs)
     }
 }

@@ -5,12 +5,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.JsonRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
 import com.josephhowerton.apolisshopping.app.Config
 import com.josephhowerton.apolisshopping.app.Endpoint
 import com.josephhowerton.apolisshopping.database.DBHelper
+import com.josephhowerton.apolisshopping.interfaces.NetworkErrorListener
 import com.josephhowerton.apolisshopping.model.category.Category
 import com.josephhowerton.apolisshopping.model.category.CategoryLight
 import com.josephhowerton.apolisshopping.model.category.CategoryResponse
@@ -18,6 +21,8 @@ import com.josephhowerton.apolisshopping.model.product.*
 import com.josephhowerton.apolisshopping.model.subcategory.SubCategory
 import com.josephhowerton.apolisshopping.model.subcategory.SubCategoryResponse
 import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
+import com.josephhowerton.apolisshopping.model.user.User
+import org.json.JSONObject
 
 class Repository constructor(application: Application){
 
@@ -30,25 +35,72 @@ class Repository constructor(application: Application){
         return fetchCategory()
     }
 
-    fun signIn() : LiveData<Boolean> {
-        TODO()
-    }
-
-    fun signUp(name: String, email: String, password: String, phone: String) : LiveData<Boolean> {
+    fun signIn(email: String, password: String, listener: NetworkErrorListener) : LiveData<Boolean> {
         val mutableLiveData:MutableLiveData<Boolean> = MutableLiveData()
 
-        val request = StringRequest(
-            Request.Method.GET,
-            Config.getBaseUrlWithEndpoint(Endpoint.CATEGORY),
-            {
-                val response = gson.fromJson(it, CategoryResponse::class.java)
-                for(category in response.data){
-                    addCategory(category)
+        val jsonObject = JSONObject()
+
+        jsonObject.put(DBHelper.EMAIL, email)
+        jsonObject.put(DBHelper.PASSWORD, password)
+
+        val request = JsonObjectRequest(
+                Request.Method.POST,
+                Config.getSignInUrl(),
+                jsonObject,
+                {
+                    mutableLiveData.value = true
+                    val userName = it.getString(DBHelper.FIRST_NAME)
+                    val userEmail = it.getString(DBHelper.EMAIL)
+                    val userPassword = it.getString(DBHelper.PASSWORD)
+                    val userPhone = it.getString(DBHelper.MOBILE)
+                    val userV = it.getInt(DBHelper.V)
+                    val userId = it.getString(DBHelper.ID)
+                    val userCreatedAt = it.getString(DBHelper.CREATED_AT)
+                    val user = User(userName, userId, userEmail, userPassword, userPhone, userCreatedAt, userV)
+                    updateUser(user)
+                },
+                {
+                    it.printStackTrace()
+                    listener.onNetworkError(it.message!!)
+                    mutableLiveData.value = false
                 }
-                mutableLiveData.value = true
+        )
+        requestQueue.add(request)
+
+        return mutableLiveData
+
+    }
+
+    fun signUp(name: String, email: String, password: String, phone: String, listener: NetworkErrorListener) : LiveData<Boolean> {
+        val mutableLiveData:MutableLiveData<Boolean> = MutableLiveData()
+
+        val jsonObject = JSONObject()
+
+        jsonObject.put(DBHelper.FIRST_NAME, name)
+        jsonObject.put(DBHelper.EMAIL, email)
+        jsonObject.put(DBHelper.PASSWORD, password)
+        jsonObject.put(DBHelper.MOBILE, phone)
+
+        val request = JsonObjectRequest(
+            Request.Method.POST,
+            Config.getSignUpUrl(),
+                jsonObject,
+            {
+//                val userName = it.getString(DBHelper.FIRST_NAME)
+//                val userEmail = it.getString(DBHelper.EMAIL)
+//                val userPassword = it.getString(DBHelper.PASSWORD)
+//                val userPhone = it.getString(DBHelper.MOBILE)
+//                val userV = it.getInt(DBHelper.V)
+//                val userId = it.getString(DBHelper.ID)
+//                val userCreatedAt = it.getString(DBHelper.CREATED_AT)
+//                val user = User(userName, userId, userEmail, userPassword, userPhone, userCreatedAt, userV)
+//                addUser(user)
+                print(it.toString())
+//                mutableLiveData.value = true
             },
             {
                 it.printStackTrace()
+                listener.onNetworkError("Error Signing In")
                 mutableLiveData.value = false
             }
         )
@@ -179,6 +231,10 @@ class Repository constructor(application: Application){
         db.addProduct(product)
     }
 
+    private fun addUser(user: User){
+        db.addUser(user)
+    }
+
     fun getAllCategory() : ArrayList<CategoryLight> {
         return db.getAllCategory()
     }
@@ -195,7 +251,11 @@ class Repository constructor(application: Application){
         return db.getAllProductBySubId(id)
     }
 
-    fun updateProduct(product: Product){
+    private fun updateProduct(product: Product){
         db.updateProduct(product)
+    }
+
+    private fun updateUser(user: User){
+        db.updateUser(user)
     }
 }

@@ -1,5 +1,6 @@
 package com.josephhowerton.apolisshopping.view.fragment
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,18 +8,21 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.josephhowerton.apolisshopping.R
+import com.josephhowerton.apolisshopping.app.Config
 import com.josephhowerton.apolisshopping.databinding.FragmentSignInBinding
 import com.josephhowerton.apolisshopping.databinding.FragmentSignUpBinding
+import com.josephhowerton.apolisshopping.interfaces.NetworkErrorListener
 import com.josephhowerton.apolisshopping.view.activity.MainActivity
 import com.josephhowerton.apolisshopping.viewmodel.AuthViewModel
 
-class SignUpFragment : Fragment() {
+class SignUpFragment : Fragment(), NetworkErrorListener{
     private lateinit var mBinding: FragmentSignUpBinding
     private lateinit var mViewModel: AuthViewModel
 
@@ -63,19 +67,13 @@ class SignUpFragment : Fragment() {
     }
 
     private fun signUp(name: String, email: String, password: String, phone: String){
-        mViewModel.signUp(name, email, password, phone).observe(viewLifecycleOwner, {
+        mViewModel.signUp(name, email, password, phone, this).observe(viewLifecycleOwner, {
             if(it){
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 startActivity(intent)
                 requireActivity().finish()
-            }else{
-                alertUser()
             }
         })
-    }
-
-    private fun alertUser() {
-        TODO("Not yet implemented")
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -83,5 +81,22 @@ class SignUpFragment : Fragment() {
             requireActivity().onBackPressed()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onNetworkError(message: String) {
+        alertUser(message)
+    }
+
+    private fun alertUser(message:String) {
+        AlertDialog.Builder(requireContext())
+                .setCancelable(false)
+                .setTitle(Config.TITLE)
+                .setMessage(message)
+                .setPositiveButton(
+                        Config.BTN,
+                ) { dialogInterface: DialogInterface, i: Int ->
+                    dialogInterface.dismiss()
+                    requireActivity().onBackPressed()
+                }.show()
     }
 }
