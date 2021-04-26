@@ -1,4 +1,4 @@
-package com.josephhowerton.apolisshopping.view.fragment
+                package com.josephhowerton.apolisshopping.view.fragment
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
