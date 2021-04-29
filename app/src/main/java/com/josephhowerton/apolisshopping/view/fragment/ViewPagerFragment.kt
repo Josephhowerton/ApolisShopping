@@ -1,20 +1,20 @@
                 package com.josephhowerton.apolisshopping.view.fragment
 
 import android.os.Bundle
+import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.josephhowerton.apolisshopping.R
 import com.josephhowerton.apolisshopping.adapter.PagerAdapter
 import com.josephhowerton.apolisshopping.databinding.ViewPagerBinding
 import com.josephhowerton.apolisshopping.model.category.CategoryLight
+import com.josephhowerton.apolisshopping.model.product.ProductLight
 import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
 import com.josephhowerton.apolisshopping.viewmodel.ViewPagerViewModel
 
@@ -23,14 +23,11 @@ class ViewPagerFragment : Fragment() {
     private lateinit var mBinding:ViewPagerBinding
     private lateinit var mViewModel:ViewPagerViewModel
     private lateinit var pagerAdapter: PagerAdapter
-    private var catId:Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(this).get(ViewPagerViewModel::class.java)
-        pagerAdapter = PagerAdapter(this, mList)
-
-        catId = arguments?.getInt(CategoryLight.CATEGORY_ID)!!
+        mViewModel = ViewModelProvider(requireActivity()).get(ViewPagerViewModel::class.java)
+        mViewModel.categoryId = arguments?.getInt(CategoryLight.CATEGORY_ID)!!
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View{
@@ -42,6 +39,7 @@ class ViewPagerFragment : Fragment() {
     }
 
     private fun init(){
+        pagerAdapter = PagerAdapter(this, mList)
         mBinding.viewPager.adapter = pagerAdapter
         initSubcategory()
         initToolbar()
@@ -49,7 +47,7 @@ class ViewPagerFragment : Fragment() {
 
     private fun initSubcategory(){
         mList.clear()
-        mList.addAll(mViewModel.getSubcategoryByCatId(catId))
+        mList.addAll(mViewModel.getSubcategoryByCatId(mViewModel.categoryId))
         pagerAdapter.notifyDataSetChanged()
         if(mList.isEmpty()){
             mBinding.txtViewNoItems.visibility = View.VISIBLE
@@ -67,10 +65,16 @@ class ViewPagerFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId == android.R.id.home){
-            requireActivity().onBackPressed()
-            return true
+
+        when(item.itemId){
+            android.R.id.home-> requireActivity().onBackPressed()
+
+            R.id.navigation_shopping_cart -> Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.navigation_shopping_cart)
         }
-        return super.onOptionsItemSelected(item)
+        return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.shopping_menu, menu)
     }
 }

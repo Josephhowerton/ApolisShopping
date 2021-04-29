@@ -7,6 +7,8 @@ import com.josephhowerton.apolisshopping.model.product.ProductLight
 import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
 
 class ViewPagerViewModel(application: Application) : AndroidViewModel(application) {
+    var categoryId:Int = 0
+
     private val repository = Repository(application)
 
     fun getProductsBySubCategory(id: Int) : ArrayList<ProductLight>{

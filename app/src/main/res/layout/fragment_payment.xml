@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".view.fragment.PaymentFragment">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:elevation="0dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                app:elevation="4dp"
+                android:id="@+id/toolbar"
+                app:layout_collapseMode="pin"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:fitsSystemWindows="true"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark"
+                app:popupTheme="@style/Widget.AppCompat.PopupMenu.Overflow" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".15"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/blue"
+            app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
+            app:layout_constraintBottom_toTopOf="@id/guidelineBottom"/>
+
+
+        <TextView
+            android:id="@+id/text_view_amount_to_pay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:text="@string/title_amount_to_pay"
+            app:layout_constraintTop_toBottomOf="@id/guidelineTop"/>
+
+        <TextView
+            android:id="@+id/text_view_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/white"
+            android:text="@string/total"
+            app:layout_constraintTop_toBottomOf="@id/text_view_amount_to_pay"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".3"/>
+
+
+        <TextView
+            android:id="@+id/title_sub_total"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/title_sub_total"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/sub_total_amount"
+            app:layout_constraintTop_toBottomOf="@id/guidelineBottom"/>
+
+        <TextView
+            android:id="@+id/sub_total_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="@string/default_value"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/title_sub_total"
+            app:layout_constraintBaseline_toBaselineOf="@id/title_sub_total"/>
+
+        <TextView
+            android:id="@+id/title_tax"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/title_tax"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/sub_total_amount"
+            app:layout_constraintTop_toBottomOf="@id/title_sub_total"/>
+
+        <TextView
+            android:id="@+id/tax_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="@string/default_value"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/title_tax"
+            app:layout_constraintBaseline_toBaselineOf="@id/title_tax"/>
+
+        <TextView
+            android:id="@+id/title_delivery"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/title_delivery"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/sub_total_amount"
+            app:layout_constraintTop_toBottomOf="@id/title_tax"/>
+
+        <TextView
+            android:id="@+id/delivery_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="@string/default_value"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/title_delivery"
+            app:layout_constraintBaseline_toBaselineOf="@id/title_delivery"/>
+
+        <TextView
+            android:id="@+id/title_order_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/title_order_amount"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/order_amount"
+            app:layout_constraintTop_toBottomOf="@id/title_delivery"/>
+
+        <TextView
+            android:id="@+id/order_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="10dp"
+            android:text="@string/default_value"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/title_order_amount"
+            app:layout_constraintBaseline_toBaselineOf="@id/title_order_amount"/>
+
+
+        <Button
+            android:id="@+id/btn_pay_online"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/title_pay_online"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_pay_cast"/>
+
+
+        <Button
+            android:id="@+id/btn_pay_cast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/pay_with_cash"
+            android:layout_margin="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_pay_online"
+            app:layout_constraintBaseline_toBaselineOf="@id/btn_pay_online"/>
+
+        <include
+            android:id="@+id/order_confirmed"
+            layout="@layout/layout_order_confirmed"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

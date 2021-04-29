@@ -22,6 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 android:fitsSystemWindows="true"
+                app:menu="@menu/shopping_menu"
                 android:theme="@style/ThemeOverlay.AppCompat.Light"
                 app:popupTheme="@style/Widget.AppCompat.PopupMenu.Overflow" />
 
@@ -45,6 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:tabMode="scrollable"
+            app:tabGravity="center"
             app:layout_constraintTop_toBottomOf="@id/app_bar_layout"/>
 
         <androidx.viewpager2.widget.ViewPager2

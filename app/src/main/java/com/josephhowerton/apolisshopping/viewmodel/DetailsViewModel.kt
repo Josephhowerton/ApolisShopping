@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.josephhowerton.apolisshopping.Repository
 import com.josephhowerton.apolisshopping.model.product.ProductDetails
+import com.josephhowerton.apolisshopping.model.product.ProductLight
 
 class DetailsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -14,4 +15,7 @@ class DetailsViewModel(application: Application) : AndroidViewModel(application)
         return repository.getProductById(id);
     }
 
+    fun addToUserCart(product: ProductDetails, quantity: Int){
+        repository.addProductToUserCart(product, quantity)
+    }
 }

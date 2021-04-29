@@ -9,4 +9,6 @@ data class ProductDetails(
         var productDescription: String,
         var productPrice: Number,
         var productQuantity: Int,
+        var subId: Int,
+        var catId: Int,
 ) : Serializable

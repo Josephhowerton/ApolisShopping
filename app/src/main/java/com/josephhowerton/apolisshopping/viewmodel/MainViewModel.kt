@@ -15,6 +15,10 @@ class MainViewModel(application:Application): AndroidViewModel (application){
 
     private val repository:Repository = Repository(application)
 
+    fun initUser(){
+        repository.initUser()
+    }
+
     fun fetchSubCategory(id:Int)  : LiveData<Boolean>{
         return repository.fetchSubCategory(id)
     }

@@ -1,0 +1,29 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="@string/title_account_info">
+
+        <Preference
+            app:key="action_address"
+            app:title="@string/title_address"
+            app:fragment="com.josephhowerton.apolisshopping.view.fragment.AddressFragment"/>
+
+        <Preference
+            app:key="action_payment_info"
+            app:title="@string/title_payment_info" />
+
+        <Preference
+            app:key="action_order"
+            app:title="@string/title_orders"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/title_see_ya_later">
+
+        <Preference
+            app:key="CURRENT_USER"
+            app:title="@string/text_sign_out" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

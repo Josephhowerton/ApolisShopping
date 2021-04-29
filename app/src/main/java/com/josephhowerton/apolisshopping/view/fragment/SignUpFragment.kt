@@ -70,6 +70,7 @@ class SignUpFragment : Fragment(), NetworkErrorListener{
         mViewModel.signUp(name, email, password, phone, this).observe(viewLifecycleOwner, {
             if(it){
                 val intent = Intent(requireActivity(), MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                 startActivity(intent)
                 requireActivity().finish()
             }
@@ -94,7 +95,7 @@ class SignUpFragment : Fragment(), NetworkErrorListener{
                 .setMessage(message)
                 .setPositiveButton(
                         Config.BTN,
-                ) { dialogInterface: DialogInterface, i: Int ->
+                ) { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
                     requireActivity().onBackPressed()
                 }.show()

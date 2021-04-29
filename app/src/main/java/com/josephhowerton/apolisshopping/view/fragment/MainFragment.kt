@@ -2,13 +2,13 @@ package com.josephhowerton.apolisshopping.view.fragment
 
 import android.content.DialogInterface
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,11 +17,8 @@ import com.josephhowerton.apolisshopping.R
 import com.josephhowerton.apolisshopping.adapter.CategoryAdapter
 import com.josephhowerton.apolisshopping.app.Config
 import com.josephhowerton.apolisshopping.databinding.FragmentMainBinding
-import com.josephhowerton.apolisshopping.model.category.Category
 import com.josephhowerton.apolisshopping.model.category.CategoryLight
-import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
 import com.josephhowerton.apolisshopping.viewmodel.MainViewModel
-import kotlin.collections.ArrayList
 
 class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
 
@@ -40,6 +37,7 @@ class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
 
         init()
         initBanner()
+        initToolbar()
         initCategory()
 
         return mBinding.root
@@ -47,8 +45,14 @@ class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
 
     private fun init() {
         mAdapter = CategoryAdapter(mList, this)
-        mBinding.recycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        mBinding.recycler.adapter = mAdapter
+        mBinding.content.recycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        mBinding.content.recycler.adapter = mAdapter
+    }
+
+    private fun initToolbar(){
+        (requireActivity() as AppCompatActivity).setSupportActionBar(mBinding.content.toolbar)
+        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
+        setHasOptionsMenu(true)
     }
 
     private fun initBanner(){
@@ -58,7 +62,7 @@ class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
             .placeholder(R.drawable.ic_image_place_holder)
             .error(R.drawable.ic_broken_image)
             .fallback(R.drawable.ic_no_image)
-            .into(mBinding.image)
+            .into(mBinding.content.image)
     }
 
     private fun initCategory(){
@@ -86,9 +90,24 @@ class MainFragment : Fragment(), CategoryAdapter.CategoryClickListener{
                 .setMessage(Config.MESSAGE)
                 .setPositiveButton(
                         Config.BTN,
-                ) { dialogInterface: DialogInterface, i: Int ->
+                ) { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
                     requireActivity().onBackPressed()
                 }.show()
+    }
+
+    private val TAG = "MainFragment"
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.navigation_settings -> Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.navigation_settings)
+
+            R.id.navigation_shopping_cart -> Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.navigation_shopping_cart)
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.main_menu, menu)
     }
 }

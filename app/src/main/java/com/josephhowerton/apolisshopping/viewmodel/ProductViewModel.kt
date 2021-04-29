@@ -18,8 +18,8 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
         return repository.fetchProductsDetails(id)
     }
 
-    fun getProductById(id: String) : ProductDetails {
-        return repository.getProductById(id)
+    fun addToCart(product: ProductLight){
+        repository.addProductToUserCart(product, 1)
     }
 
     fun getAllProductBySubId(id:Int) : ArrayList<ProductLight> {

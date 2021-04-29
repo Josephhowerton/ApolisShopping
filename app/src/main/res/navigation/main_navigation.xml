@@ -10,16 +10,54 @@
         android:name="com.josephhowerton.apolisshopping.view.fragment.MainFragment"
         android:label="Main"
         tools:layout="@layout/fragment_main" />
+
     <fragment
         android:id="@+id/navigation_sub_category"
         android:name="com.josephhowerton.apolisshopping.view.fragment.ViewPagerFragment"
         android:label="Sub Category"
         tools:layout="@layout/view_pager" />
+
     <fragment
         android:id="@+id/navigation_details"
         android:name="com.josephhowerton.apolisshopping.view.fragment.DetailsFragment"
         android:label="Details"
         tools:layout="@layout/fragment_details" />
+
+    <fragment
+        android:id="@+id/navigation_shopping_cart"
+        android:name="com.josephhowerton.apolisshopping.view.fragment.ShoppingCartFragment"
+        android:label="Shopping Cart"
+        tools:layout="@layout/fragment_shopping_cart" />
+
+
+    <activity
+        android:id="@+id/navigation_settings"
+        android:name="com.josephhowerton.apolisshopping.view.activity.SettingsActivity"
+        android:label="User Preferences" />
+
+    <fragment
+        android:id="@+id/navigation_payment"
+        android:name="com.josephhowerton.apolisshopping.view.fragment.PaymentFragment"
+        android:label="Payments"
+        tools:layout="@layout/fragment_payment" />
+
+    <fragment
+        android:id="@+id/navigation_address"
+        android:name="com.josephhowerton.apolisshopping.view.fragment.AddressFragment"
+        android:label="Addresses"
+        tools:layout="@layout/fragment_address" />
+
+    <fragment
+        android:id="@+id/navigation_add_address"
+        android:name="com.josephhowerton.apolisshopping.view.fragment.AddAddressFragment"
+        android:label="Add Address"
+        tools:layout="@layout/fragment_add_address" />
+
+    <fragment
+        android:id="@+id/navigation_orders"
+        android:name="com.josephhowerton.apolisshopping.view.fragment.OrdersFragment"
+        android:label="Orders"
+        tools:layout="@layout/fragment_orders" />
 
 
 </navigation>

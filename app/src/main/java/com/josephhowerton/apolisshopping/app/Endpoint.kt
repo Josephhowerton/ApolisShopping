@@ -5,12 +5,8 @@ class Endpoint {
         const val CATEGORY = "category"
         const val SUB_CATEGORY = "subcategory"
         const val PRODUCTS = "products"
-        const val FIRST_NAME = "firstName"
-        const val LAST_NAME = "lastName"
-        const val EMAIL = "email"
-        const val PASSWORD = "password"
-        const val MOBILE = "mobile"
+        const val ADDRESS = "address"
         const val URL_REGISTER = "auth/register"
-        const val URL_SIGN_IN = "auth/signIn"
+        const val URL_SIGN_IN = "auth/login"
     }
 }

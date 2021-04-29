@@ -24,10 +24,10 @@ import com.josephhowerton.apolisshopping.model.subcategory.SubcategoryLight
 import com.josephhowerton.apolisshopping.app.Config.Companion.BTN
 import com.josephhowerton.apolisshopping.app.Config.Companion.MESSAGE
 import com.josephhowerton.apolisshopping.app.Config.Companion.TITLE
+import com.josephhowerton.apolisshopping.interfaces.AddToCartListener
 import com.josephhowerton.apolisshopping.viewmodel.ProductViewModel
 
-class ProductFragment : Fragment(), ProductsAdapter.ProductClickListener {
-    private val TAG = "ProductFragment"
+class ProductFragment : Fragment(), ProductsAdapter.ProductClickListener, AddToCartListener {
     private val mList: ArrayList<ProductLight> = ArrayList()
     private lateinit var binding:FragmentProductBinding
     private lateinit var mViewModel:ProductViewModel
@@ -37,11 +37,10 @@ class ProductFragment : Fragment(), ProductsAdapter.ProductClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mViewModel = ViewModelProvider(this).get(ProductViewModel::class.java)
-        mAdapter = ProductsAdapter(mList, this)
+        mAdapter = ProductsAdapter(mList, this, this)
 
         arguments?.let {
             subCategoryId = it.getInt(SubCategory.SUB_CATEGORY_KEY)
-            Log.println(Log.ASSERT, TAG, "Subcategory id " + subCategoryId)
         }
     }
 
@@ -83,6 +82,10 @@ class ProductFragment : Fragment(), ProductsAdapter.ProductClickListener {
                 alertUser()
             }
         })
+    }
+
+    override fun onAddToCart(productLight: ProductLight) {
+        mViewModel.addToCart(productLight)
     }
 
     private fun alertUser() {
