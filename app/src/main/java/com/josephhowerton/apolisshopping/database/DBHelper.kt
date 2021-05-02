@@ -12,6 +12,10 @@ import com.josephhowerton.apolisshopping.model.Address
 import com.josephhowerton.apolisshopping.model.AddressWithNameAndPhone
 import com.josephhowerton.apolisshopping.model.category.Category
 import com.josephhowerton.apolisshopping.model.category.CategoryLight
+import com.josephhowerton.apolisshopping.model.orders.Order
+import com.josephhowerton.apolisshopping.model.orders.OrderSummary
+import com.josephhowerton.apolisshopping.model.orders.Products
+import com.josephhowerton.apolisshopping.model.orders.UserOrder
 import com.josephhowerton.apolisshopping.model.product.Product
 import com.josephhowerton.apolisshopping.model.product.ProductDetails
 import com.josephhowerton.apolisshopping.model.product.ProductLight
@@ -29,51 +33,70 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
         const val CATEGORY_TABLE_NAME = "category"
         const val SUBCATEGORY_TABLE_NAME = "subcategory"
         const val PRODUCT_TABLE_NAME = "product"
+        const val ORDERED_PRODUCTS_TABLE_NAME = "ordered_products"
         const val USER_TABLE_NAME = "user"
         const val SHOPPING_CART_TABLE_NAME = "shopping_cart"
         const val ADDRESS_TABLE_NAME = "address"
-        const val ORDER_HISTORY_TABLE_NAME = "order_history"
+        const val ORDERS_TABLE_NAME = "orders"
+        const val ORDERS_SUMMARY_TABLE_NAME = "order_summary"
 
         const val V = "__v"
         const val ID = "_id"
         const val CAT_DESCRIPTION = "catDescription"
-        const val CAT_ID = "catId"
-        const val CAT_IMAGE = "catImage"
-        const val CAT_NAME = "catName"
+        const val CAT_ID = "cat_id"
+        const val CAT_IMAGE = "cat_image"
+        const val CAT_NAME = "cat_name"
         const val POSITION = "position"
         const val SLUG = "slug"
         const val STATUS = "status"
 
-        const val SUB_DESCRIPTION = "subDescription"
-        const val SUB_IMAGE = "subImage"
-        const val SUB_NAME = "subName"
-        const val SUB_ID = "subId"
+        const val SUB_DESCRIPTION = "sub_description"
+        const val SUB_IMAGE = "sub_image"
+        const val SUB_NAME = "sub_name"
+        const val SUB_ID = "sub_id"
 
         const val QUANTITY = "quantity"
         const val DESCRIPTION = "description"
         const val CREATED = "created"
-        const val PRODUCT_NAME = "productName"
+        const val PRODUCT_NAME = "product_name"
         const val IMAGE = "image"
         const val UNIT = "unit"
         const val PRICE = "price"
         const val MRP = "mrp"
 
-        const val FIRST_NAME = "firstName"
+        const val PRODUCT_ID = "product_id"
+        const val DATE = "date"
+
+        const val FIRST_NAME = "first_name"
         const val EMAIL = "email"
         const val PASSWORD = "password"
         const val MOBILE = "mobile"
-        const val CREATED_AT = "createdAt"
+        const val CREATED_AT = "created_at"
 
         const val USER_ID = "user_id"
         const val ITEM_ID = "item_id"
         const val ADDRESS_ID = "address_id"
+        const val ORDER_ID = "order_id"
+        const val ORDER_SUMMARY_ID = "order_summary_id"
 
         const val CITY = "city"
         const val COUNTRY = "country"
         const val PIN_CODE = "pincode"
-        const val STREET_NAME = "streetName"
+        const val STREET_NAME = "street_name"
         const val TYPE = "type"
-        const val HOUSE_NUMBER = "houseNo"
+        const val HOUSE_NUMBER = "house_number"
+
+        const val TOTAL_AMOUNT = "total_amount"
+        const val OUR_PRICE = "our_price"
+        const val DISCOUNT = "discount"
+        const val DELIVERY_CHARGES = "delivery_charges"
+        const val ORDER_AMOUNT = "order_amount"
+
+        const val EMAIL_USED = "email_used"
+        const val MOBILE_USED = "mobile_used"
+        const val PAYMENT_MODE = "payment_mode"
+        const val PAYMENT_STATUS = "payment_status"
+
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -97,20 +120,32 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
         val shoppingTable = "create table $SHOPPING_CART_TABLE_NAME ($USER_ID varchar(50), $ITEM_ID varchar(30)," +
                 "$QUANTITY varchar(30), $IMAGE varchar(50), $PRICE real, $PRODUCT_NAME varchar(50), PRIMARY KEY ($USER_ID, $ITEM_ID))"
 
-        val orderHistoryTable = "create table $ORDER_HISTORY_TABLE_NAME ($USER_ID varchar(50), $ITEM_ID varchar(30)," +
-                "$QUANTITY varchar(30), $IMAGE varchar(50), $PRICE real, $PRODUCT_NAME varchar(50), PRIMARY KEY ($USER_ID, $ITEM_ID))"
-
-        val addressTable = "create table $ADDRESS_TABLE_NAME ($FIRST_NAME varchar(50), $MOBILE varchar(50), $USER_ID varchar(50), $ADDRESS_ID varchar(30), " +
+        val addressTable = "create table $ADDRESS_TABLE_NAME ($FIRST_NAME varchar(50), $USER_ID varchar(50), $ADDRESS_ID varchar(30), " +
                 "$CITY varchar(30), $COUNTRY varchar(3), $STREET_NAME varchar(50), $PIN_CODE integer, $TYPE varchar(50), " +
-                "$HOUSE_NUMBER varchar(50), $V integer, PRIMARY KEY ($USER_ID, $ADDRESS_ID))"
+                "$HOUSE_NUMBER varchar(50), $V integer, $MOBILE varchar(20), PRIMARY KEY ($USER_ID, $ADDRESS_ID))"
+
+        val orderTable = "create table $ORDERS_TABLE_NAME ($ORDER_ID varchar(50), $USER_ID varchar(50), " +
+                "$EMAIL_USED varchar(50), $MOBILE_USED varchar(13), $FIRST_NAME varchar(20), " +
+                "$PIN_CODE integer, $HOUSE_NUMBER varchar(50), $STREET_NAME varchar(30), $CITY varchar(20), $PAYMENT_MODE varchar(10), " +
+                "$PAYMENT_STATUS varchar(10), $DATE varchar(30), $V integer, PRIMARY KEY ($ORDER_ID, $USER_ID))"
+
+        val orderedProductsTable = "create table $ORDERED_PRODUCTS_TABLE_NAME ($QUANTITY integer, " +
+                "$ID varchar(50), $ORDER_ID varchar(30), $PRODUCT_NAME varchar(50), $IMAGE varchar(50), $PRICE real," +
+                "$MRP real, PRIMARY KEY ($ID, $ORDER_ID))"
+
+        val orderSummaryTable = "create table $ORDERS_SUMMARY_TABLE_NAME ($ORDER_SUMMARY_ID varchar(30), $ORDER_ID varchar(30)," +
+                "$TOTAL_AMOUNT real, $OUR_PRICE real, $DISCOUNT real, $DELIVERY_CHARGES real, " +
+                "$ORDER_AMOUNT real, PRIMARY KEY ($ORDER_SUMMARY_ID, $ORDER_ID))"
 
         db?.execSQL(categoryTable)
         db?.execSQL(subcategoryTable)
         db?.execSQL(productTable)
         db?.execSQL(userTable)
         db?.execSQL(shoppingTable)
-        db?.execSQL(orderHistoryTable)
         db?.execSQL(addressTable)
+        db?.execSQL(orderTable)
+        db?.execSQL(orderedProductsTable)
+        db?.execSQL(orderSummaryTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {}
@@ -276,6 +311,55 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
         }
     }
 
+    fun addOrder(order: Order) : Boolean {
+        val contentValues = ContentValues()
+
+        contentValues.put(ORDER_ID, order._id)
+        contentValues.put(USER_ID, order.userId)
+        contentValues.put(ORDER_SUMMARY_ID, order.orderSummary._id)
+        contentValues.put(EMAIL_USED, order.user.email)
+        contentValues.put(MOBILE_USED, order.user.mobile)
+        contentValues.put(FIRST_NAME, order.user.name)
+        contentValues.put(PIN_CODE, order.shippingAddress.pincode)
+        contentValues.put(HOUSE_NUMBER,  order.shippingAddress.houseNo)
+        contentValues.put(STREET_NAME, order.shippingAddress.streetName)
+        contentValues.put(CITY,  order.shippingAddress.city)
+        contentValues.put(PAYMENT_MODE, order.payment.paymentMode)
+        contentValues.put(PAYMENT_STATUS, order.payment.paymentStatus)
+        contentValues.put(DATE,  order.date)
+        contentValues.put(V, order.__v)
+
+        return try {
+            writableDatabase.insertOrThrow(ADDRESS_TABLE_NAME, null, contentValues)
+            true
+        }catch (e: SQLiteConstraintException){
+            val whereClause = "$USER_ID = ? AND $ORDER_ID = ?"
+            val whereValues = arrayOf(order.userId, order._id)
+            writableDatabase.update(ORDERS_TABLE_NAME, contentValues, whereClause, whereValues)
+            true
+        }
+    }
+
+    fun addOrderSummary(orderId: String, orderSummary: OrderSummary) : Boolean {
+        val contentValues = ContentValues()
+        contentValues.put(ORDER_SUMMARY_ID, orderSummary._id)
+        contentValues.put(ORDER_ID, orderId)
+        contentValues.put(TOTAL_AMOUNT, orderSummary.totalAmount.toFloat())
+        contentValues.put(OUR_PRICE, orderSummary.ourPrice.toFloat())
+        contentValues.put(DISCOUNT, orderSummary.discount.toFloat())
+        contentValues.put(DELIVERY_CHARGES, orderSummary.deliveryCharges.toFloat())
+        contentValues.put(ORDER_AMOUNT, orderSummary.orderAmount.toFloat())
+        return try {
+            writableDatabase.insertOrThrow(ADDRESS_TABLE_NAME, null, contentValues)
+            true
+        }catch (e: SQLiteConstraintException){
+            val whereClause = "$ORDER_ID = ? AND $ORDER_SUMMARY_ID = ?"
+            val whereValues = arrayOf(orderId, orderSummary._id)
+            writableDatabase.update(ORDERS_SUMMARY_TABLE_NAME, contentValues, whereClause, whereValues)
+            true
+        }
+    }
+
     fun getAllCategory() : ArrayList<CategoryLight> {
         val categories = ArrayList<CategoryLight>()
         val columns = arrayOf(ID, CAT_ID, CAT_NAME, CAT_IMAGE)
@@ -425,6 +509,83 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
             cursor.close()
         }
         return product
+    }
+
+    fun getAllOrdersBelongingToUser(userID: String)  : ArrayList<UserOrder>  {
+        val orders = ArrayList<UserOrder>()
+        val selection = "$USER_ID = ?"
+        val selectionArgs = arrayOf(userID)
+        val cursor = readableDatabase.query(ORDERS_TABLE_NAME, null, selection, selectionArgs, null, null, null)
+        if(cursor != null && cursor.moveToFirst()) {
+            do {
+                val orderId = cursor.getString(cursor.getColumnIndex(ORDER_ID))
+                val userId = cursor.getString(cursor.getColumnIndex(USER_ID))
+                val orderSummaryId = cursor.getString(cursor.getColumnIndex(ORDER_SUMMARY_ID))
+                val emailUsed = cursor.getString(cursor.getColumnIndex(EMAIL_USED))
+                val mobileUsed = cursor.getString(cursor.getColumnIndex(MOBILE_USED))
+                val name = cursor.getString(cursor.getColumnIndex(FIRST_NAME))
+                val pinCode = cursor.getInt(cursor.getColumnIndex(PIN_CODE))
+                val houseNumber = cursor.getString(cursor.getColumnIndex(HOUSE_NUMBER))
+                val streetName = cursor.getString(cursor.getColumnIndex(STREET_NAME))
+                val city = cursor.getString(cursor.getColumnIndex(CITY))
+                val paymentMode = cursor.getString(cursor.getColumnIndex(PAYMENT_MODE))
+                val paymentStatus = cursor.getString(cursor.getColumnIndex(PAYMENT_STATUS))
+                val date = cursor.getString(cursor.getColumnIndex(DATE))
+                val v = cursor.getInt(cursor.getColumnIndex(V))
+                val orderSummary = getOrderSummary(orderId, orderSummaryId)
+                val products = getProductsInOrder(orderId)
+                orders.add(
+                        UserOrder(orderId, userId, orderSummaryId, emailUsed, mobileUsed,
+                                name, pinCode, houseNumber, streetName, city, paymentMode, paymentStatus,
+                                date, v, orderSummary, products
+                        )
+                )
+
+            } while (cursor.moveToNext())
+            cursor.close()
+        }
+        return orders
+    }
+
+    private fun getOrderSummary(orderId: String, orderSummaryId: String) : OrderSummary  {
+        lateinit var orderSummary:OrderSummary
+        val selection = "$ORDER_ID = ? AND $ORDER_SUMMARY_ID = ?"
+        val selectionArgs = arrayOf(orderId, orderSummaryId)
+        val cursor = readableDatabase.query(ORDERS_SUMMARY_TABLE_NAME, null, selection, selectionArgs, null, null, null)
+        if(cursor != null && cursor.moveToFirst()) {
+            do {
+                val totalAmount = cursor.getFloat(cursor.getColumnIndex(TOTAL_AMOUNT))
+                val ourPrice = cursor.getFloat(cursor.getColumnIndex(OUR_PRICE))
+                val discount = cursor.getFloat(cursor.getColumnIndex(DISCOUNT))
+                val deliveryCharges = cursor.getFloat(cursor.getColumnIndex(DELIVERY_CHARGES))
+                val orderAmount = cursor.getFloat(cursor.getColumnIndex(ORDER_AMOUNT))
+                orderSummary = OrderSummary(orderSummaryId, totalAmount, ourPrice, discount, deliveryCharges, orderAmount)
+
+            } while (cursor.moveToNext())
+            cursor.close()
+        }
+        return orderSummary
+    }
+
+    private fun getProductsInOrder(orderId: String) : ArrayList<Products> {
+        val products: ArrayList<Products>  =  ArrayList()
+        val selection = "$ORDER_ID = ?"
+        val selectionArgs = arrayOf(orderId)
+        val cursor = readableDatabase.query(ORDERED_PRODUCTS_TABLE_NAME, null, selection, selectionArgs, null, null, null)
+        if(cursor != null && cursor.moveToFirst()) {
+            do {
+                val productId = cursor.getString(cursor.getColumnIndex(PRODUCT_ID))
+                val mrp = cursor.getFloat(cursor.getColumnIndex(MRP))
+                val price = cursor.getFloat(cursor.getColumnIndex(PRICE))
+                val quantity = cursor.getInt(cursor.getColumnIndex(QUANTITY))
+                val image = cursor.getString(cursor.getColumnIndex(IMAGE))
+
+                products.add(Products(productId, mrp, price, quantity, image))
+
+            } while (cursor.moveToNext())
+            cursor.close()
+        }
+        return products
     }
 
     fun getAllAddressForUser(userID: String) : ArrayList<Address>{

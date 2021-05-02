@@ -42,7 +42,6 @@ class AddressFragment : Fragment(), AddressAdapter.AddressClickListener, Address
         // Inflate the layout for this fragment
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_address, container, false)
 
-
         initToolbar()
         initAdapter()
         initAddress()

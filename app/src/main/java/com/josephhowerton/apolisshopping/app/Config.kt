@@ -9,6 +9,9 @@ class Config {
         const val ACTION_ORDER = "action_order"
         const val BANNER_IMAGE = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUo8ynBItVwCdYRCNj9cibTm2nud8gACmfsA&usqp=CAU"
         const val EDIT_TYPE_KEY = "EDIT_TYPE"
+        const val DATA = "data"
+        const val USER_ID = "userId"
+
         fun getBaseUrlWithEndpoint(endpoint:String): String{
             return "http://grocery-second-app.herokuapp.com/api/${endpoint}?"
         }
@@ -40,8 +43,17 @@ class Config {
         fun getAddressUrl(): String {
             return "http://grocery-second-app.herokuapp.com/api/${Endpoint.ADDRESS}"
         }
+
         fun getAddressUrl(addressId: String): String {
             return "http://grocery-second-app.herokuapp.com/api/${Endpoint.ADDRESS}/${addressId}"
+        }
+
+        fun getOrdersUrl(userId: String): String {
+            return "http://grocery-second-app.herokuapp.com/api/orders/${userId}"
+        }
+
+        fun getCreateOrdersUrl(): String {
+            return "http://grocery-second-app.herokuapp.com/api/orders/"
         }
 
         const val TITLE = "There was an error!"

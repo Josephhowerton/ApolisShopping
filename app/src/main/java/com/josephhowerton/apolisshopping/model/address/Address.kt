@@ -14,6 +14,14 @@ data class Address(
 ) : Serializable {
     companion object{
         const val ADDRESS = "Address"
+        const val HOUSE_NUMBER = "houseNo"
+        const val ID = "_id"
+        const val STREET_NAME = "streetName"
+        const val CITY = "city"
+        const val TYPE = "type"
+        const val USER_ID = "userId"
+        const val PIN_CODE = "pincode"
+        const val V = "__v"
     }
 }
 

@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.josephhowerton.apolisshopping.R
-import com.josephhowerton.apolisshopping.viewmodel.PaymentHistoryViewModel
+import com.josephhowerton.apolisshopping.viewmodel.PaymentViewModel
 
 class OrdersFragment : Fragment() {
 
@@ -15,7 +15,7 @@ class OrdersFragment : Fragment() {
         fun newInstance() = OrdersFragment()
     }
 
-    private lateinit var viewModel: PaymentHistoryViewModel
+    private lateinit var viewModel: PaymentViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -24,7 +24,7 @@ class OrdersFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(PaymentHistoryViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(PaymentViewModel::class.java)
         // TODO: Use the ViewModel
     }
 
