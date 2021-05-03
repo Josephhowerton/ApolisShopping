@@ -8,15 +8,14 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.josephhowerton.apolisshopping.R
 import com.josephhowerton.apolisshopping.app.Config
-import com.josephhowerton.apolisshopping.view.fragment.AddressFragment
-import com.josephhowerton.apolisshopping.view.fragment.OrdersFragment
+import com.josephhowerton.apolisshopping.view.fragment.settings.OrdersFragment
 import com.josephhowerton.apolisshopping.view.fragment.PaymentFragment
+import com.josephhowerton.apolisshopping.view.fragment.settings.AddressSettingsFragment
 import com.josephhowerton.apolisshopping.viewmodel.SettingsViewModel
 
 class SettingsActivity : AppCompatActivity(){
@@ -50,7 +49,7 @@ class SettingsActivity : AppCompatActivity(){
             when (preference?.key) {
                 Config.CURRENT_USER -> mViewModel.signOut()
 
-                Config.ACTION_ADDRESS -> navigate(AddressFragment())
+                Config.ACTION_ADDRESS -> navigate(AddressSettingsFragment())
 
                 Config.ACTION_PAYMENT -> navigate(PaymentFragment())
 
@@ -63,6 +62,7 @@ class SettingsActivity : AppCompatActivity(){
             requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.settings, fragment)
+                .addToBackStack(null)
                 .commit()
         }
 
@@ -85,14 +85,6 @@ class SettingsActivity : AppCompatActivity(){
             requireActivity().finish()
         }
     }
-
-    class AddressFragment : PreferenceFragmentCompat(){
-
-        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            TODO("Not yet implemented")
-        }
-    }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){

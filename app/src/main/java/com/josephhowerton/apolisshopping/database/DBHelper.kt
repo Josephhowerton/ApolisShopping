@@ -315,7 +315,6 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
 
         contentValues.put(ORDER_ID, order._id)
         contentValues.put(USER_ID, order.userId)
-        contentValues.put(ORDER_SUMMARY_ID, order.orderSummary._id)
         contentValues.put(EMAIL_USED, order.user.email)
         contentValues.put(MOBILE_USED, order.user.mobile)
         contentValues.put(FIRST_NAME, order.user.name)
@@ -344,7 +343,7 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
 
         contentValues.put(ORDER_ID, orderId)
         contentValues.put(IMAGE, product.image)
-        contentValues.put(PRODUCT_ID, product._id)
+        contentValues.put(ID, product._id)
         contentValues.put(MRP, product.mrp.toDouble())
         contentValues.put(QUANTITY, product.quantity)
         contentValues.put(PRICE, product.price.toDouble())
@@ -540,7 +539,6 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
             do {
                 val orderId = cursor.getString(cursor.getColumnIndex(ORDER_ID))
                 val userId = cursor.getString(cursor.getColumnIndex(USER_ID))
-                val orderSummaryId = cursor.getString(cursor.getColumnIndex(ORDER_SUMMARY_ID))
                 val emailUsed = cursor.getString(cursor.getColumnIndex(EMAIL_USED))
                 val mobileUsed = cursor.getString(cursor.getColumnIndex(MOBILE_USED))
                 val name = cursor.getString(cursor.getColumnIndex(FIRST_NAME))
@@ -552,10 +550,10 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
                 val paymentStatus = cursor.getString(cursor.getColumnIndex(PAYMENT_STATUS))
                 val date = cursor.getString(cursor.getColumnIndex(DATE))
                 val v = cursor.getInt(cursor.getColumnIndex(V))
-                val orderSummary = getOrderSummary(orderId, orderSummaryId)
+                val orderSummary = getOrderSummary(orderId)
                 val products = getProductsInOrder(orderId)
                 orders.add(
-                        UserOrder(orderId, userId, orderSummaryId, emailUsed, mobileUsed,
+                        UserOrder(orderId, userId, emailUsed, mobileUsed,
                                 name, pinCode, houseNumber, streetName, city, paymentMode, paymentStatus,
                                 date, v, orderSummary, products
                         )
@@ -567,13 +565,14 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
         return orders
     }
 
-    private fun getOrderSummary(orderId: String, orderSummaryId: String) : OrderSummary  {
+    private fun getOrderSummary(orderId: String) : OrderSummary  {
         lateinit var orderSummary:OrderSummary
-        val selection = "$ORDER_ID = ? AND $ORDER_SUMMARY_ID = ?"
-        val selectionArgs = arrayOf(orderId, orderSummaryId)
+        val selection = "$ORDER_ID = ?"
+        val selectionArgs = arrayOf(orderId)
         val cursor = readableDatabase.query(ORDERS_SUMMARY_TABLE_NAME, null, selection, selectionArgs, null, null, null)
         if(cursor != null && cursor.moveToFirst()) {
             do {
+                val orderSummaryId = cursor.getString(cursor.getColumnIndex(ORDER_SUMMARY_ID))
                 val totalAmount = cursor.getFloat(cursor.getColumnIndex(TOTAL_AMOUNT))
                 val ourPrice = cursor.getFloat(cursor.getColumnIndex(OUR_PRICE))
                 val discount = cursor.getFloat(cursor.getColumnIndex(DISCOUNT))
@@ -594,7 +593,7 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
         val cursor = readableDatabase.query(ORDERED_PRODUCTS_TABLE_NAME, null, selection, selectionArgs, null, null, null)
         if(cursor != null && cursor.moveToFirst()) {
             do {
-                val productId = cursor.getString(cursor.getColumnIndex(PRODUCT_ID))
+                val productId = cursor.getString(cursor.getColumnIndex(ID))
                 val mrp = cursor.getFloat(cursor.getColumnIndex(MRP))
                 val price = cursor.getFloat(cursor.getColumnIndex(PRICE))
                 val quantity = cursor.getInt(cursor.getColumnIndex(QUANTITY))
@@ -606,30 +605,6 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
             cursor.close()
         }
         return products
-    }
-
-    fun getAllAddressForUser(userID: String) : ArrayList<Address>{
-        val address = ArrayList<Address>()
-        val selection = "$USER_ID = ?"
-        val selectionArgs = arrayOf(userID)
-        val columns = arrayOf(USER_ID, ADDRESS_ID, CITY, HOUSE_NUMBER, PIN_CODE, STREET_NAME, V, TYPE)
-        val cursor = readableDatabase.query(ADDRESS_TABLE_NAME, columns, selection, selectionArgs, null, null, null)
-        if(cursor != null && cursor.moveToFirst()) {
-            do {
-                val uid = cursor.getString(cursor.getColumnIndex(USER_ID))
-                val addressId = cursor.getString(cursor.getColumnIndex(ADDRESS_ID))
-                val city = cursor.getString(cursor.getColumnIndex(CITY))
-                val houseNumber = cursor.getString(cursor.getColumnIndex(HOUSE_NUMBER))
-                val pinCode = cursor.getInt(cursor.getColumnIndex(PIN_CODE))
-                val streetName = cursor.getString(cursor.getColumnIndex(STREET_NAME))
-                val v = cursor.getInt(cursor.getColumnIndex(V))
-                val type = cursor.getString(cursor.getColumnIndex(TYPE))
-                address.add(Address(addressId, houseNumber, streetName, city, type, uid, pinCode, v))
-
-            } while (cursor.moveToNext())
-            cursor.close()
-        }
-        return address
     }
 
     fun getAllAddressWithNameAndPhoneForUser(userID: String) : ArrayList<AddressWithNameAndPhone>{

@@ -12,19 +12,18 @@ import com.josephhowerton.apolisshopping.model.Address
 import com.josephhowerton.apolisshopping.model.AddressWithNameAndPhone
 import com.josephhowerton.apolisshopping.model.user.User
 
-class AddressAdapter(user: User, list: ArrayList<AddressWithNameAndPhone>, clickListener: AddressClickListener,
+class AddressAdapter(list: ArrayList<AddressWithNameAndPhone>, clickListener: AddressClickListener,
                      editListener: AddressEditListener, emptyListListener: EmptyListListener) : RecyclerView.Adapter<AddressAdapter.MainViewHolder> (){
 
     private val mList = list
-    private val mUser = user
     private val mClickListener = clickListener
     private val mEditListener = editListener
     private val mEmptyListListener = emptyListListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
+
         val binding: RowItemAddressBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(
-            parent.context),
+            LayoutInflater.from(parent.context),
             R.layout.row_item_address,
             parent,
             false
@@ -34,7 +33,7 @@ class AddressAdapter(user: User, list: ArrayList<AddressWithNameAndPhone>, click
     }
 
     override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
-        holder.bindCategory(mUser.firstName, mList[position], position)
+        holder.bindCategory(mList[position], position)
     }
 
     override fun getItemCount(): Int {
@@ -56,11 +55,12 @@ class AddressAdapter(user: User, list: ArrayList<AddressWithNameAndPhone>, click
         private val mClickListener = clickListener
         private val mEditListener = editListener
 
-        fun bindCategory(userName: String, address: AddressWithNameAndPhone, position: Int){
-            mBinding.textViewBillToName.text = userName
+        fun bindCategory(address: AddressWithNameAndPhone, position: Int){
+            mBinding.textViewBillToName.text = address.name
             mBinding.textViewAddress.text = formatAddress(address.houseNo, address.streetName)
             mBinding.textViewLocation.text = address.city
             mBinding.textViewPostal.text = address.pincode.toString()
+            mBinding.textViewAddressType.text = address.type
 
             mBinding.cardView.setOnClickListener {
                 mClickListener.onAddressClick(address)

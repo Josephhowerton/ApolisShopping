@@ -1,9 +1,10 @@
 package com.josephhowerton.apolisshopping.model.orders
 
+import java.io.Serializable
+
 data class UserOrder(
         val orderId: String,
         val userId: String,
-        val orderSummaryId: String,
         val email: String,
         val mobile: String,
         val name: String,
@@ -17,4 +18,8 @@ data class UserOrder(
         val __v: Int,
         val orderSummary: OrderSummary,
         val products: ArrayList<Products>,
-)
+) : Serializable {
+        companion object {
+                val ORDER = "order"
+        }
+}

@@ -6,12 +6,7 @@
         <Preference
             app:key="action_address"
             app:title="@string/title_address"
-            app:fragment="com.josephhowerton.apolisshopping.view.fragment.AddressFragment"/>
-
-        <Preference
-            app:key="action_payment_info"
-            app:title="@string/title_payment_info" />
-
+            app:fragment="com.josephhowerton.apolisshopping.view.fragment.settings.AddressFragment"/>
         <Preference
             app:key="action_order"
             app:title="@string/title_orders"/>

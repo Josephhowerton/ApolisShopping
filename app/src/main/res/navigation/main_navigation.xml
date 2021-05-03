@@ -55,7 +55,7 @@
 
     <fragment
         android:id="@+id/navigation_orders"
-        android:name="com.josephhowerton.apolisshopping.view.fragment.OrdersFragment"
+        android:name="com.josephhowerton.apolisshopping.view.fragment.settings.OrdersFragment"
         android:label="Orders"
         tools:layout="@layout/fragment_orders" />
 

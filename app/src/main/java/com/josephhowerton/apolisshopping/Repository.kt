@@ -301,7 +301,7 @@ class Repository constructor(application: Application){
         jsonObject.put(Address.STREET_NAME, streetName)
         jsonObject.put(Address.HOUSE_NUMBER, houseNo)
         jsonObject.put(Address.TYPE, type)
-        jsonObject.put("userId", getCurrentUserId()!!)
+        jsonObject.put(Config.USER_ID, getCurrentUserId()!!)
 
         val request = JsonObjectRequest(
                 Request.Method.PUT,
@@ -317,7 +317,7 @@ class Repository constructor(application: Application){
                     val userId = data.getString(Config.USER_ID)
                     val id = data.getString(Address.ID)
                     val v = data.getInt(Address.V)
-                    mutableLiveData.value = addAddress(AddressWithNameAndPhone(name, phone, id,
+                    mutableLiveData.value = addAddress(AddressWithNameAndPhone(id, name, phone,
                             houseNumber, responseStreetName, responseCity, country, responseType,
                             userId, pinCode, v))
                 },
@@ -400,8 +400,6 @@ class Repository constructor(application: Application){
         orderJSONObject.put(MakeOrder.PAYMENT, paymentJSON)
         orderJSONObject.put(MakeOrder.PRODUCT, productsJSON)
 
-
-
         val request = JsonObjectRequest(
                 Request.Method.POST,
                 Config.getCreateOrdersUrl(),
@@ -451,8 +449,6 @@ class Repository constructor(application: Application){
                         addOrderedProducts(orderId, Products(id, mrp, price, quantity, image))
                     }
 
-                    deleteUserShoppingCart()
-
                     val orderSum = OrderSummary(orderSummaryId, totalAmount, ourPrice, discount, deliveryCharges, orderAmount)
                     val userOrder = UserMakingOrder(userId, email, mobile, name)
                     val shippingAdd = ShippingAddress(pincode, houseNo, streetName, city)
@@ -461,6 +457,7 @@ class Repository constructor(application: Application){
                     val orderSummarySuccess = addOrderSummary(orderId, orderSum)
                     val orderSuccess = addOrder(Order(orderId, userId, orderSum, userOrder, shippingAdd, payment, products, dates, v))
 
+                    deleteUserShoppingCart()
                     mutableLiveData.value = (orderSummarySuccess && orderSuccess)
 
                 },
@@ -557,7 +554,7 @@ class Repository constructor(application: Application){
         return db.deleteProductFromCart(getCurrentUserId()!!, productId)
     }
 
-    fun deleteUserShoppingCart() {
+    private fun deleteUserShoppingCart() {
         db.deleteShoppingCart(getCurrentUserId()!!)
     }
 
@@ -571,5 +568,9 @@ class Repository constructor(application: Application){
 
     private fun addOrderSummary(orderId: String, orderSummary: OrderSummary) : Boolean {
         return db.addOrderSummary(orderId, orderSummary)
+    }
+
+    fun getAllOrders() : ArrayList<UserOrder> {
+        return db.getAllOrdersBelongingToUser(getCurrentUserId()!!)
     }
 }

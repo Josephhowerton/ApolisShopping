@@ -71,4 +71,10 @@
     <string name="united_states">US</string>
     <string name="title_orders">Orders</string>
     <string name="title_order_amount">Order Amount</string>
+    <string name="title_order">Order</string>
+    <string name="hint_order_id">Order Id</string>
+    <string name="title_order_date">Ordered Data</string>
+    <string name="payment_mode">Payment Mode</string>
+    <string name="hint_products">Products</string>
+    <string name="no_orders">No Orders</string>
 </resources>

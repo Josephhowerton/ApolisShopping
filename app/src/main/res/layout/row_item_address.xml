@@ -65,6 +65,7 @@
             android:text="@string/title_edit"
             android:textAlignment="center"
             android:textStyle="bold"
+            android:padding="10dp"
             android:textColor="@color/blue"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_view_postal" />
@@ -78,6 +79,7 @@
             android:textAlignment="center"
             android:textStyle="bold"
             android:textColor="@color/blue"
+            android:padding="10dp"
             android:layout_marginStart="10dp"
             app:layout_constraintStart_toEndOf="@+id/text_view_edit_address"
             app:layout_constraintTop_toBottomOf="@+id/text_view_postal" />
