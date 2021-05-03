@@ -39,19 +39,8 @@ class Repository constructor(application: Application){
     private val gson:Gson = Gson()
     private val db: DBHelper = DBHelper(application)
 
-    private lateinit var user:User
-
     fun init() : LiveData<Boolean> {
         return fetchCategory()
-    }
-
-    fun initUser(){
-        val userId = getCurrentUserId()
-        if(userId != null){
-            user = db.getUser(userId)
-        }else{
-            println("ERROR ASSIGNING USER ")
-        }
     }
 
     fun isUserSignedIn() : Boolean {
@@ -365,85 +354,114 @@ class Repository constructor(application: Application){
         return mutableLiveData
     }
 
-    fun postOrderAndSavedToDatabase(order: MakeOrder, listener: NetworkErrorListener) : LiveData<Boolean> {
+    fun postOrderAndSavedToDatabase(makeOrder: MakeOrder, listener: NetworkErrorListener) : LiveData<Boolean> {
 
         val mutableLiveData:MutableLiveData<Boolean> = MutableLiveData()
-        val jsonObject = JSONObject()
-        val orderSummary = JSONObject()
-        val user = JSONObject()
-        val shippingAddress = JSONObject()
-        val payment = JSONObject()
-        val products = JSONObject()
+
+        val orderSummaryJSON = JSONObject()
+        orderSummaryJSON.put(OrderSummary.ourPrice, makeOrder.orderSummary.ourPrice)
+        orderSummaryJSON.put(OrderSummary.discount, makeOrder.orderSummary.discount)
+        orderSummaryJSON.put(OrderSummary.totalAmount, makeOrder.orderSummary.totalAmount)
+        orderSummaryJSON.put(OrderSummary.orderAmount, makeOrder.orderSummary.orderAmount)
+        orderSummaryJSON.put(OrderSummary.deliveryCharges,  makeOrder.orderSummary.deliveryCharges)
+
+        val userJSON = JSONObject()
+        userJSON.put(UserMakingOrder.name, makeOrder.user.name)
+        userJSON.put(UserMakingOrder.email, makeOrder.user.email)
+        userJSON.put(UserMakingOrder.mobile, makeOrder.user.mobile)
+
+        val shippingAddressJSON = JSONObject()
+        shippingAddressJSON.put(ShippingAddress.city, makeOrder.shippingAddress.city)
+        shippingAddressJSON.put(ShippingAddress.pincode, makeOrder.shippingAddress.pincode)
+        shippingAddressJSON.put(ShippingAddress.houseNo, makeOrder.shippingAddress.houseNo)
+        shippingAddressJSON.put(ShippingAddress.streetName, makeOrder.shippingAddress.streetName)
 
 
-        orderSummary.put(MakeOrder.ORDER_SUMMARY, order.orderSummary)
-        user.put(MakeOrder.USER, order.user)
-        shippingAddress.put(MakeOrder.SHIPPING_ADDRESS, order.shippingAddress)
-        payment.put(MakeOrder.PAYMENT, order.payment)
-        products.put(MakeOrder.PRODUCT, order.products)
+        val paymentJSON = JSONObject()
+        paymentJSON.put(Payment.paymentMode, makeOrder.payment.paymentMode)
+        paymentJSON.put(Payment.paymentStatus, makeOrder.payment.paymentStatus)
 
-        jsonObject.put(MakeOrder.USER_ID, getCurrentUserId())
-        jsonObject.put(MakeOrder.ORDER_SUMMARY, orderSummary)
-        jsonObject.put(MakeOrder.USER, user)
-        jsonObject.put(MakeOrder.SHIPPING_ADDRESS, shippingAddress)
-        jsonObject.put(MakeOrder.PAYMENT, payment)
-        jsonObject.put(MakeOrder.PRODUCT, products)
+        val productsJSON = JSONArray()
+
+        for(i in 0 until makeOrder.products.size){
+            val temp = JSONObject()
+            temp.put(Products.mrp, makeOrder.products[i].mrp)
+            temp.put(Products.price, makeOrder.products[i].price)
+            temp.put(Products.image, makeOrder.products[i].image)
+            temp.put(Products.quantity, makeOrder.products[i].quantity)
+            productsJSON.put(temp)
+        }
+
+        val orderJSONObject = JSONObject()
+        orderJSONObject.put(MakeOrder.USER_ID, getCurrentUserId())
+        orderJSONObject.put(MakeOrder.ORDER_SUMMARY, orderSummaryJSON)
+        orderJSONObject.put(MakeOrder.USER, userJSON)
+        orderJSONObject.put(MakeOrder.SHIPPING_ADDRESS, shippingAddressJSON)
+        orderJSONObject.put(MakeOrder.PAYMENT, paymentJSON)
+        orderJSONObject.put(MakeOrder.PRODUCT, productsJSON)
+
 
 
         val request = JsonObjectRequest(
                 Request.Method.POST,
                 Config.getCreateOrdersUrl(),
-                jsonObject,
+                orderJSONObject,
                 {
                     val data = it.getJSONObject(Config.DATA)
                     val orderId = data.getString(Order.id)
                     val userId = data.getString(Order.userId)
-                    val orderSummaryJSON = data.getJSONObject(Order.orderSummary)
-                    val userJSON = data.getJSONObject(Order.user)
-                    val shippingAddressJSON = data.getJSONObject(Order.shippingAddress)
-                    val paymentJSON = data.getJSONObject(Order.payment)
-                    val productsJSON = data.getJSONArray(Order.products)
+                    val orderSummaryData = data.getJSONObject(Order.orderSummary)
+                    val userData = data.getJSONObject(Order.user)
+                    val shippingAddressData = data.getJSONObject(Order.shippingAddress)
+                    val paymentData = data.getJSONObject(Order.payment)
+                    val productsData = data.getJSONArray(Order.products)
                     val dates = data.getString(Order.date)
                     val v = data.getInt(Order.v)
 
-                    val orderSummaryId = orderSummaryJSON.getString(OrderSummary.id)
-                    val totalAmount = orderSummaryJSON.getDouble(OrderSummary.totalAmount).toFloat()
-                    val ourPrice = orderSummaryJSON.getDouble(OrderSummary.ourPrice).toFloat()
-                    val discount = orderSummaryJSON.getDouble(OrderSummary.discount).toFloat()
-                    val deliveryCharges = orderSummaryJSON.getDouble(OrderSummary.deliveryCharges).toFloat()
-                    val orderAmount = orderSummaryJSON.getDouble(OrderSummary.orderAmount).toFloat()
+                    val orderSummaryId = orderSummaryData.getString(OrderSummary.id)
+                    val totalAmount = orderSummaryData.getDouble(OrderSummary.totalAmount).toFloat()
+                    val ourPrice = orderSummaryData.getDouble(OrderSummary.ourPrice).toFloat()
+                    val discount = orderSummaryData.getDouble(OrderSummary.discount).toFloat()
+                    val deliveryCharges = orderSummaryData.getDouble(OrderSummary.deliveryCharges).toFloat()
+                    val orderAmount = orderSummaryData.getDouble(OrderSummary.orderAmount).toFloat()
 
-                    val email = userJSON.getString(UserMakingOrder.email)
-                    val mobile = userJSON.getString(UserMakingOrder.mobile)
-                    val name = userJSON.getString(UserMakingOrder.name)
+                    val email = userData.getString(UserMakingOrder.email)
+                    val mobile = userData.getString(UserMakingOrder.mobile)
+                    val name = userData.getString(UserMakingOrder.name)
 
-                    val pincode = shippingAddressJSON.getInt(ShippingAddress.pincode)
-                    val houseNo = shippingAddressJSON.getString(ShippingAddress.houseNo)
-                    val streetName = shippingAddressJSON.getString(ShippingAddress.streetName)
-                    val city = shippingAddressJSON.getString(ShippingAddress.city)
+                    val pincode = shippingAddressData.getInt(ShippingAddress.pincode)
+                    val houseNo = shippingAddressData.getString(ShippingAddress.houseNo)
+                    val streetName = shippingAddressData.getString(ShippingAddress.streetName)
+                    val city = shippingAddressData.getString(ShippingAddress.city)
 
-                    val paymentId = paymentJSON.getString(Payment.id)
-                    val paymentMode = paymentJSON.getString(Payment.paymentMode)
-                    val paymentStatus = paymentJSON.getString(Payment.paymentStatus)
+                    val paymentId = paymentData.getString(Payment.id)
+                    val paymentMode = paymentData.getString(Payment.paymentMode)
+                    val paymentStatus = paymentData.getString(Payment.paymentStatus)
 
                     val products = ArrayList<Products>()
 
-                    for(i in 0 until productsJSON.length()){
-                        val product = productsJSON.getJSONObject(i)
+                    for(i in 0 until productsData.length()){
+                        val product = productsData.getJSONObject(i)
                         val id = product.getString(Products.id)
-                        val mrp = product.getDouble(Products.mrp).toFloat()
-                        val price = product.getDouble(Products.price).toFloat()
-                        val quantity = product.getInt(Products.quantity)
+                        val mrp = product.getDouble(Products.mrp)
+                        val price = product.getDouble(Products.price)
                         val image = product.getString(Products.image)
-                        products.add(Products(id, mrp, price, quantity, image))
+                        val quantity = product.getInt(Products.quantity)
+
+                        addOrderedProducts(orderId, Products(id, mrp, price, quantity, image))
                     }
+
+                    deleteUserShoppingCart()
 
                     val orderSum = OrderSummary(orderSummaryId, totalAmount, ourPrice, discount, deliveryCharges, orderAmount)
                     val userOrder = UserMakingOrder(userId, email, mobile, name)
                     val shippingAdd = ShippingAddress(pincode, houseNo, streetName, city)
                     val payment = Payment(paymentId, paymentMode, paymentStatus)
-                    addOrderSummary(orderId, orderSum)
-                    mutableLiveData.value = addOrder(Order(orderId, userId, orderSum, userOrder, shippingAdd, payment, products, dates, v))
+
+                    val orderSummarySuccess = addOrderSummary(orderId, orderSum)
+                    val orderSuccess = addOrder(Order(orderId, userId, orderSum, userOrder, shippingAdd, payment, products, dates, v))
+
+                    mutableLiveData.value = (orderSummarySuccess && orderSuccess)
 
                 },
                 {
@@ -494,6 +512,10 @@ class Repository constructor(application: Application){
         return db.addAddress(address)
     }
 
+    private fun addOrderedProducts(orderId: String, product: Products){
+        db.addOrderedProduct(orderId, product)
+    }
+
     fun addProductToUserCart(product: ProductDetails, quantity:Int) : Boolean{
         return db.addProductToUserCart(getCurrentUserId()!!, product, quantity)
     }
@@ -535,19 +557,19 @@ class Repository constructor(application: Application){
         return db.deleteProductFromCart(getCurrentUserId()!!, productId)
     }
 
+    fun deleteUserShoppingCart() {
+        db.deleteShoppingCart(getCurrentUserId()!!)
+    }
+
     private fun deleteUserAddress(addressId: String) : LiveData<Boolean> {
         return db.deleteUserAddress(getCurrentUserId()!!, addressId)
     }
 
-    fun addOrder(order: Order) : Boolean {
+    private fun addOrder(order: Order) : Boolean {
         return db.addOrder(order)
     }
 
-    fun addOrderSummary(orderId: String, orderSummary: OrderSummary) : Boolean {
+    private fun addOrderSummary(orderId: String, orderSummary: OrderSummary) : Boolean {
         return db.addOrderSummary(orderId, orderSummary)
-    }
-
-    fun getAllOrdersBelongingToUser()  : ArrayList<UserOrder>  {
-        return db.getAllOrdersBelongingToUser(getCurrentUserId()!!)
     }
 }

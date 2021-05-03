@@ -260,7 +260,6 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
             writableDatabase.insertOrThrow(SHOPPING_CART_TABLE_NAME, null, contentValues)
             true
         }catch (e: Exception){
-            Log.println(Log.ASSERT, "HERE", "HERE")
             val productInCart = getProductInUserCart(userID, product.productId)
             productInCart.productQuantity = (productInCart.productQuantity + quantity)
             updateQuantity(userID, productInCart)
@@ -330,11 +329,32 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
         contentValues.put(V, order.__v)
 
         return try {
-            writableDatabase.insertOrThrow(ADDRESS_TABLE_NAME, null, contentValues)
+            writableDatabase.insertOrThrow(ORDERS_TABLE_NAME, null, contentValues)
             true
         }catch (e: SQLiteConstraintException){
             val whereClause = "$USER_ID = ? AND $ORDER_ID = ?"
             val whereValues = arrayOf(order.userId, order._id)
+            writableDatabase.update(ORDERS_TABLE_NAME, contentValues, whereClause, whereValues)
+            true
+        }
+    }
+
+    fun addOrderedProduct(orderId: String, product: Products) : Boolean {
+        val contentValues = ContentValues()
+
+        contentValues.put(ORDER_ID, orderId)
+        contentValues.put(IMAGE, product.image)
+        contentValues.put(PRODUCT_ID, product._id)
+        contentValues.put(MRP, product.mrp.toDouble())
+        contentValues.put(QUANTITY, product.quantity)
+        contentValues.put(PRICE, product.price.toDouble())
+
+        return try {
+            writableDatabase.insertOrThrow(ORDERED_PRODUCTS_TABLE_NAME, null, contentValues)
+            true
+        }catch (e: SQLiteConstraintException){
+            val whereValues = arrayOf(orderId, product._id)
+            val whereClause = "$ID = ? AND $ORDER_ID = ?"
             writableDatabase.update(ORDERS_TABLE_NAME, contentValues, whereClause, whereValues)
             true
         }
@@ -350,7 +370,7 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
         contentValues.put(DELIVERY_CHARGES, orderSummary.deliveryCharges.toFloat())
         contentValues.put(ORDER_AMOUNT, orderSummary.orderAmount.toFloat())
         return try {
-            writableDatabase.insertOrThrow(ADDRESS_TABLE_NAME, null, contentValues)
+            writableDatabase.insertOrThrow(ORDERS_SUMMARY_TABLE_NAME, null, contentValues)
             true
         }catch (e: SQLiteConstraintException){
             val whereClause = "$ORDER_ID = ? AND $ORDER_SUMMARY_ID = ?"
@@ -638,7 +658,6 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
         return address
     }
 
-
     fun updateProduct(product: Product){
         val contentValues = ContentValues()
         contentValues.put(QUANTITY, product.quantity )
@@ -663,22 +682,19 @@ class  DBHelper(application: Application) : SQLiteOpenHelper(application, DB_NAM
         }
     }
 
-    fun updateUser(user: User){
-        val statement = "INSERT OR REPLACE INTO " +
-                "$USER_TABLE_NAME($FIRST_NAME,$CREATED_AT, $ID, $EMAIL, $PASSWORD,$MOBILE, $V) " +
-                "VALUES('${user.firstName}', '${user.createdAt}','${user._id}', '${user.email}', " +
-                "'${user.password}', '${user.mobile}', '${user.__v}') "
-
-        writableDatabase.execSQL(statement)
-    }
-
-
     private fun updateQuantity(userId: String, product: ProductLight){
         val contentValues = ContentValues()
         contentValues.put(QUANTITY, product.productQuantity)
         val whereClause = "$USER_ID = ? AND $ITEM_ID = ?"
         val whereArgs = arrayOf(userId, product.productId)
         writableDatabase.update(SHOPPING_CART_TABLE_NAME, contentValues, whereClause, whereArgs)
+    }
+
+    fun deleteShoppingCart(userId: String) : LiveData<Boolean> {
+        val whereClause = "$USER_ID = ?"
+        val whereArgs = arrayOf(userId)
+        val index = writableDatabase.delete(SHOPPING_CART_TABLE_NAME, whereClause, whereArgs)
+        return MutableLiveData((index >= 0))
     }
 
     fun deleteProductFromCart(userId: String, productId: String) : LiveData<Boolean> {

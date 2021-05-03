@@ -13,10 +13,6 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         return repository.init()
     }
 
-    fun initUser(){
-        repository.initUser()
-    }
-
     fun isUserSignedIn() : Boolean {
         return repository.isUserSignedIn()
     }
